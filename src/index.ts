@@ -1,2 +1,3 @@
-export * from './event-emitter';
-export * from './handler-not-found-error';
+export * from './easing';
+export * from './deep-partial';
+export * from './timeline';

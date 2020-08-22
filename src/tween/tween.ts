@@ -11,7 +11,7 @@ import { get } from './builder/get';
 export interface TweenEvents<T> {
   update: (value: T, source: Tween<T>) => void;
   pause: (source: Tween<T>) => void;
-  resume: (timeElapsedPaused: number, source: Tween<T>) => void;
+  resume: (source: Tween<T>) => void;
   complete: (source: Tween<T>) => void;
 }
 
@@ -37,8 +37,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
   private readonly config: Required<TweenOpts>;
   private _localTime = 0;
-  private timeOfLastUpdate?: number;
-  private lastTimeResumed?: number;
+  private previousTime?: number;
   private _paused = false;
   private completed = false;
   public readonly tweenTo: DeepReadonly<DeepPartial<T>>;
@@ -73,23 +72,20 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   }
 
   public seek(time: number): this {
-    this._localTime = time;
-    if (time < this.length) this.completed = false;
+    this._localTime = Math.min(time, this.length);
+    if (this._localTime < this.length) this.completed = false;
+    this.previousTime = new Date().getTime();
     return this;
   }
 
   public resume(): this {
     if (this._paused) {
-      this.emit('resume', calcTimeSpentPaused(this), this);
-      this.lastTimeResumed = new Date().getTime();
+      this.emit('resume', this);
+      this.previousTime = new Date().getTime();
     }
 
     this._paused = false;
     return this;
-
-    function calcTimeSpentPaused(self: Tween<T>) {
-      return self.lastTimeResumed == null ? 0 : self.lastTimeResumed;
-    }
   }
 
   public pause(): this {
@@ -114,10 +110,10 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
       this.completed = true;
     }
 
-    this.timeOfLastUpdate = currentTime;
+    this.previousTime = currentTime;
 
     function timeOfLastUpdate(self: Tween<T>) {
-      return self.timeOfLastUpdate == null ? self.timeOfCreation : self.timeOfLastUpdate;
+      return self.previousTime == null ? self.timeOfCreation : self.previousTime;
     }
   }
 }
