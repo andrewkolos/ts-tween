@@ -62,7 +62,7 @@ describe(nameof(Tween), () => {
   it('correctly tweens arrays', (done) => {
     const start = [1, 2, 3];
     const end = [10, 20, 30];
-    const tween = Tween.get(start).to(end).with({easing: Easings.linear np,doNotWriteToSource: true})
+    const tween = Tween.get(start).to(end).with({ easing: Easings.linear, doNotWriteToSource: true })
       .on('update', (value) => {
         const progress = tween.localTime / tween.length;
         value.forEach((subVal, index) => {
@@ -119,7 +119,7 @@ function completeTween<T extends Tween<unknown>>(tween: T, intervalCount: number
   for (let i = 1; i <= intervalCount; i++) {
     const timePerInterval = tween.length / intervalCount;
     const timeOfIthInterval = timePerInterval * i;
-    tween.update(tween.timeOfCreation + timeOfIthInterval);
+    tween.update(tween.startTime + timeOfIthInterval);
   }
   return tween;
 }
