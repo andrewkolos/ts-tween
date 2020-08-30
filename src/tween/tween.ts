@@ -6,7 +6,7 @@ import { DeepPartial } from 'deep-partial';
 import { clone } from './clone-left-props-found-in-right';
 import { Timeline } from 'timeline';
 import { TweenToStep } from './builder/tween-to-step';
-import { get } from './builder/get';
+import { get as getBuilderStep } from './builder/get';
 import { LazyTimer } from 'lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from 'misc/getNow';
@@ -19,11 +19,8 @@ interface TweenEvents<T> {
   update: (value: T, source: Tween<T>) => void;
 }
 
-export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
-  public static get<T>(target: T): TweenToStep<T> {
-    return get(target);
-  }
+export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
   public static defaults(setValue?: Partial<TweenOpts>): Readonly<Required<TweenOpts>> {
     if (setValue != null) {
@@ -51,9 +48,9 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.tweening = tweening(target, tweenTo, completeOpts.easing, completeOpts.doNotWriteToSource);
 
     this.internalTimer = new LazyTimer(completeOpts.length);
-    this.internalTimer.on('resume', () => this.emit('resume', this))
+    this.internalTimer.on('start', () => this.emit('resume', this))
       .on('complete', () => this.emit('complete', this))
-      .on('pause', () => this.emit('pause', this))
+      .on('stop', () => this.emit('pause', this))
       .on('seek', (from, to) => this.emit('seek', from, to, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
@@ -73,10 +70,6 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     return this.internalTimer.length;
   }
 
-  public get startTime(): number {
-    return this.internalTimer.startTime;
-  }
-
   public get localTime(): number {
     return this.internalTimer.localTime;
   }
@@ -86,18 +79,24 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     return this;
   }
 
-  public resume(): this {
-    this.internalTimer.resume();
+  public start(): this {
+    this.internalTimer.start();
     return this;
   }
 
-  public pause(): this {
-    this.internalTimer.pause();
+  public stop(): this {
+    this.internalTimer.stop();
     return this;
   }
 
   public update(now = getNow()) {
     this.internalTimer.update(now);
+  }
+}
+
+export namespace Tween {
+  export function get<T>(target: T): TweenToStep<T> {
+    return getBuilderStep(target);
   }
 }
 

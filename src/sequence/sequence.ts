@@ -5,37 +5,52 @@ import { EventEmitter } from '@akolos/event-emitter';
 
 interface SequenceEvents<T extends Timeline> {
   complete: (source: Sequence<T>) => void;
-  pause: (source: Sequence<T>) => void;
-  resume: (source: Sequence<T>) => void;
-  timelineStarted: <U extends T>(timeline: U, source: Sequence<T>) => void;
-  timelineCompleted: <U extends T>(timeline: U, source: Sequence<T>) => void;
-  update: <U extends T>(timelinesUpdated: U[], source: Sequence<T>) => void;
+  stop: (source: Sequence<T>) => void;
+  start: (source: Sequence<T>) => void;
+  seek: (from: number, to: number, source: Sequence<T>) => void;
+  timelineActive:(timeline: T, source: Sequence<T>) => void;
+  timelineDeactive:(timeline: T, source: Sequence<T>) => void;
+  update: (dt: number, source: Sequence<T>) => void;
 }
 
 export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>> implements Timeline {
   private internalTimer: LazyTimer;
+  private readonly items: Sequenced<T>[];
+  private readonly activeTimelines = new Set<T>();
 
+  public get localTime() {
+    return this.internalTimer.localTime;
+  }
 
-  public constructor(private readonly sequenceItems: Sequenced<T>[]) {
+  public constructor(sequenceItems: Sequenced<T>[]) {
     super();
+    this.items = sequenceItems.sort((a, b) => a.startTime - b.startTime);
     const latestEndingTime = sequenceItems.reduce((latestSoFar, currentItem) => {
       return Math.max(latestSoFar, currentItem.startTime + currentItem.timeline.length);
     }, 0);
     this.internalTimer = new LazyTimer(latestEndingTime);
-  }
+    this.internalTimer.on('start', () => this.emit('start', this))
+      .on('complete', () => this.emit('complete', this))
+      .on('start', () => this.emit('start', this))
+      .on('seek', (from, to) => this.emit('seek', from, to, this))
+      .on('update', (dt) => {
+        this.updateTimelines();
+        this.emit('update', dt, this);
+      });
+   }
 
   public seek(time: number): this {
     this.internalTimer.seek(time);
     return this;
   }
 
-  public resume(): this {
-    this.internalTimer.resume();
+  public start(): this {
+    this.internalTimer.start();
     return this;
   }
 
-  public pause(): this {
-    this.internalTimer.pause();
+  public stop(): this {
+    this.internalTimer.stop();
     return this;
   }
 
@@ -43,4 +58,26 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     return this.internalTimer.length;
   }
 
+  private updateTimelines() {
+    const timelinesUpdated = new Set<T>();
+    this.items.forEach(si => {
+      const {startTime, timeline} = si;
+      if (this.localTime > startTime && this.localTime <= startTime + timeline.length) {
+        if (!this.activeTimelines.has(timeline)) {
+          this.emit('timelineActive', timeline, this);
+        }
+        timeline.seek(this.localTime - startTime);
+        timelinesUpdated.add(timeline);
+      }
+    });
+
+    for (const at of this.activeTimelines.values()) {
+      if (!timelinesUpdated.has(at)) {
+        this.emit('timelineDeactive', at, this)
+        this.activeTimelines.delete(at);
+      }
+    }
+  }
+
 }
+

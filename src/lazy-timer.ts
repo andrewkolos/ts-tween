@@ -4,8 +4,8 @@ import { getNow } from 'misc/getNow';
 
 interface LazyTimerEvents {
   complete: (source: LazyTimer) => void;
-  pause: (source: LazyTimer) => void;
-  resume: (source: LazyTimer) => void;
+  start: (source: LazyTimer) => void;
+  stop: (source: LazyTimer) => void;
   seek: (from: number, to: number, source: LazyTimer) => void;
   update: (dt: number, source: LazyTimer) => void;
 }
@@ -14,8 +14,7 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
 
   private _localTime: number;
 
-  private _paused = false;
-  public readonly startTime: number;
+  private _paused = true;
   private timeOfLastUpdate?: number;
 
   public get localTime() {
@@ -32,13 +31,12 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
 
   public constructor(public readonly length: number) {
     super();
-    this.startTime = getNow();
     this._localTime = 0;
   }
 
-  public resume(): this {
+  public start(): this {
     if (this._paused) {
-      this.emit('resume', this);
+      this.emit('start', this);
       this.setTimeOfLastUpdateToNow();
     }
 
@@ -53,9 +51,9 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     return this;
   }
 
-  public pause(): this {
+  public stop(): this {
     if (this._paused) {
-      this.emit('pause', this);
+      this.emit('stop', this);
     }
     this._paused = true;
     return this;
@@ -78,7 +76,10 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     this.timeOfLastUpdate = now;
 
     function timeOfLastUpdate(self: LazyTimer): number {
-      return self.timeOfLastUpdate != null ? self.timeOfLastUpdate : self.startTime;
+      if (self.timeOfLastUpdate == null) {
+        throw Error('Attempted to update timer before it was ever started.');
+      }
+      return self.timeOfLastUpdate;
     }
   }
 

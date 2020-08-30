@@ -34,6 +34,7 @@
                 "ignore-pattern": "^import [^,]+ from |^export | implements "
             }
         ],
-        "quotemark": [true, "single"]
+        "quotemark": [true, "single"],
+        "no-namespace": false
     }
 }

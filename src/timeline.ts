@@ -1,6 +1,7 @@
 export interface Timeline {
   seek(time: number): this;
-  resume(): this;
-  pause(): this;
+  start(): this;
+  stop(): this;
   readonly length: number;
+  readonly localTime: number;
 }
