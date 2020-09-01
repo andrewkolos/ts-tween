@@ -3,7 +3,6 @@ import { Easings } from 'easing';
 import { TweenOpts, cloneTweenOpts } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from 'deep-partial';
-import { clone } from './clone-left-props-found-in-right';
 import { Timeline } from 'timeline';
 import { TweenToStep } from './builder/tween-to-step';
 import { get as getBuilderStep } from './builder/get';
@@ -19,7 +18,6 @@ interface TweenEvents<T> {
   update: (value: T, source: Tween<T>) => void;
 }
 
-
 export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
   public static defaults(setValue?: Partial<TweenOpts>): Readonly<Required<TweenOpts>> {
@@ -32,7 +30,6 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   private static defaultOpts: Required<TweenOpts> = {
     length: 1000,
     easing: Easings.easeOutQuad,
-    doNotWriteToSource: false,
   };
 
   private readonly internalTimer: LazyTimer;
@@ -44,8 +41,8 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     super();
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     const completeOpts = fillMissingOptions(opts);
-    this._target = completeOpts.doNotWriteToSource ? clone(target) : target;
-    this.tweening = tweening(target, tweenTo, completeOpts.easing, completeOpts.doNotWriteToSource);
+    this._target = target;
+    this.tweening = tweening(target, tweenTo, completeOpts.easing);
 
     this.internalTimer = new LazyTimer(completeOpts.length);
     this.internalTimer.on('start', () => this.emit('start', this))

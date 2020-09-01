@@ -1,13 +1,13 @@
 import dedent from 'dedent';
 import { Easing } from 'easing';
 import { DeepPartial } from 'deep-partial';
-import { cloneLeftPropsFoundInRight, clone } from './clone-left-props-found-in-right';
+import { cloneCommonProps } from '../clone-common-props';
+import { clone } from '../clone';
 
-export function tweening<T>(start: T, end: DeepPartial<T>, easing: Easing, doNotWriteToStart = false): Tweening<T> {
-  const targetStart = cloneLeftPropsFoundInRight(start, end);
+export function tweening<T>(target: T, end: DeepPartial<T>, easing: Easing): Tweening<T> {
+  const start = cloneCommonProps(target, end);
   const tweenToDefensiveCopy = clone(end);
-  const target = doNotWriteToStart ? clone(start) : start;
-  return (progress: number) => tween(targetStart, tweenToDefensiveCopy, progress, easing, target) as T;
+  return (progress: number) => tween(start, tweenToDefensiveCopy, progress, easing, target) as T;
 }
 
 export type Tweening<T> = (progress: number) => T;

@@ -1,4 +1,5 @@
-import { clone, cloneLeftPropsFoundInRight } from '../../src/tween/clone-left-props-found-in-right';
+import { cloneCommonProps } from '../../src/clone-common-props';
+import { clone } from '../../src/clone';
 
 describe(nameof(clone), () => {
 
@@ -42,14 +43,14 @@ describe(nameof(clone), () => {
   });
 });
 
-describe(nameof(cloneLeftPropsFoundInRight), () => {
+describe(nameof(cloneCommonProps), () => {
 
     it('works for immutable values of the same type', () => {
-      expect(cloneLeftPropsFoundInRight('left', 'right')).toEqual('left');
+      expect(cloneCommonProps('left', 'right')).toEqual('left');
     });
 
     it('errors for immutable, different types', () => {
-      expect(() => cloneLeftPropsFoundInRight('left', 2 as any)).toThrow();
+      expect(() => cloneCommonProps('left', 2 as any)).toThrow();
     });
 
     it('works for flat objects with identical shape', () => {
@@ -65,7 +66,7 @@ describe(nameof(cloneLeftPropsFoundInRight), () => {
         c: 6,
       };
 
-      expect(cloneLeftPropsFoundInRight(left, right)).toEqual(left);
+      expect(cloneCommonProps(left, right)).toEqual(left);
     });
 
     it('works for flat objects with differing shape', () => {
@@ -81,7 +82,7 @@ describe(nameof(cloneLeftPropsFoundInRight), () => {
         b: 6,
       };
 
-      expect(cloneLeftPropsFoundInRight(left, right)).toEqual({
+      expect(cloneCommonProps(left, right)).toEqual({
         a: 1,
         b: 2,
       });
@@ -107,7 +108,7 @@ describe(nameof(cloneLeftPropsFoundInRight), () => {
         f: [1, 2],
       };
 
-      expect(cloneLeftPropsFoundInRight(left, right)).toEqual({
+      expect(cloneCommonProps(left, right)).toEqual({
         a: 1,
         b: {
           d: 3,

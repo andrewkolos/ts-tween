@@ -3,7 +3,6 @@ import { Easing } from 'easing';
 export interface TweenOpts {
   length?: number;
   easing?: Easing;
-  doNotWriteToSource?: boolean;
 }
 
 export function cloneTweenOpts<T extends TweenOpts>(opts: T): T {
