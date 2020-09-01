@@ -13,8 +13,8 @@ import { getNow } from 'misc/getNow';
 
 interface TweenEvents<T> {
   complete: (source: Tween<T>) => void;
-  pause: (source: Tween<T>) => void;
-  resume: (source: Tween<T>) => void;
+  stop: (source: Tween<T>) => void;
+  start: (source: Tween<T>) => void;
   seek: (from: number, to: number, source: Tween<T>) => void;
   update: (value: T, source: Tween<T>) => void;
 }
@@ -48,9 +48,9 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.tweening = tweening(target, tweenTo, completeOpts.easing, completeOpts.doNotWriteToSource);
 
     this.internalTimer = new LazyTimer(completeOpts.length);
-    this.internalTimer.on('start', () => this.emit('resume', this))
+    this.internalTimer.on('start', () => this.emit('start', this))
       .on('complete', () => this.emit('complete', this))
-      .on('stop', () => this.emit('pause', this))
+      .on('stop', () => this.emit('stop', this))
       .on('seek', (from, to) => this.emit('seek', from, to, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
@@ -62,8 +62,8 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     return this._target;
   }
 
-  public get paused(): boolean {
-    return this.internalTimer.paused;
+  public get stopped(): boolean {
+    return this.internalTimer.stopped;
   }
 
   public get length(): number {

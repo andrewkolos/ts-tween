@@ -22,20 +22,20 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
     if (this.target == null || this.destination == null) {
       throw Error('Missing information required to create Tween.');
     }
-    return new Tween(this.target, this.destination, Tween.defaults());
+    return new Tween(this.target, this.destination, Tween.defaults()).start();
   }
 
   public with(options: TweenOpts): Tween<T> {
     if (this.target == null || this.destination == null) {
       throw Error('Missing information required to create Tween.');
     }
-    return new Tween(this.target, this.destination, options);
+    return new Tween(this.target, this.destination, options).start();
   }
 
   public overTime(length: number): Tween<T> {
     if (this.target == null || this.destination == null) {
       throw Error('Missing information required to create Tween.');
     }
-    return new Tween(this.target, this.destination, { length });
+    return new Tween(this.target, this.destination, { length }).start();
   }
 }

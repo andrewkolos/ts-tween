@@ -2,14 +2,15 @@ import { Timeline } from 'timeline';
 import { Sequenced } from './sequenced-timeline';
 import { LazyTimer } from 'lazy-timer';
 import { EventEmitter } from '@akolos/event-emitter';
+import { getNow } from 'misc/getNow';
 
 interface SequenceEvents<T extends Timeline> {
   complete: (source: Sequence<T>) => void;
   stop: (source: Sequence<T>) => void;
   start: (source: Sequence<T>) => void;
   seek: (from: number, to: number, source: Sequence<T>) => void;
-  timelineActive:(timeline: T, source: Sequence<T>) => void;
-  timelineDeactive:(timeline: T, source: Sequence<T>) => void;
+  timelineActive: (timeline: T, source: Sequence<T>) => void;
+  timelineDeactive: (timeline: T, source: Sequence<T>) => void;
   update: (dt: number, source: Sequence<T>) => void;
 }
 
@@ -37,7 +38,12 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
         this.updateTimelines();
         this.emit('update', dt, this);
       });
-   }
+  }
+
+  public update(currentTime = getNow()): this {
+    this.internalTimer.seek(currentTime);
+    return this;
+  }
 
   public seek(time: number): this {
     this.internalTimer.seek(time);
@@ -54,6 +60,10 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     return this;
   }
 
+  public get stopped(): boolean {
+    return this.internalTimer.stopped;
+  }
+
   public get length() {
     return this.internalTimer.length;
   }
@@ -61,7 +71,7 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
   private updateTimelines() {
     const timelinesUpdated = new Set<T>();
     this.items.forEach(si => {
-      const {startTime, timeline} = si;
+      const { startTime, timeline } = si;
       if (this.localTime > startTime && this.localTime <= startTime + timeline.length) {
         if (!this.activeTimelines.has(timeline)) {
           this.emit('timelineActive', timeline, this);

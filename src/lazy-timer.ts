@@ -14,15 +14,15 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
 
   private _localTime: number;
 
-  private _paused = true;
+  private _stopped = true;
   private timeOfLastUpdate?: number;
 
   public get localTime() {
     return this._localTime;
   }
 
-  public get paused() {
-    return this._paused;
+  public get stopped() {
+    return this._stopped;
   }
 
   public get completed() {
@@ -35,12 +35,12 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
   }
 
   public start(): this {
-    if (this._paused) {
+    if (this._stopped) {
       this.emit('start', this);
       this.setTimeOfLastUpdateToNow();
     }
 
-    this._paused = false;
+    this._stopped = false;
     return this;
   }
 
@@ -52,15 +52,15 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
   }
 
   public stop(): this {
-    if (this._paused) {
+    if (this._stopped) {
       this.emit('stop', this);
     }
-    this._paused = true;
+    this._stopped = true;
     return this;
   }
 
   public update(now = getNow()) {
-    if (this.isComplete() || this.paused) return;
+    if (this.isComplete() || this.stopped) return;
 
     const dt = now - timeOfLastUpdate(this);
 

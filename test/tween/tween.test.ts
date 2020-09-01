@@ -116,10 +116,11 @@ describe(nameof(Tween), () => {
 });
 
 function completeTween<T extends Tween<unknown>>(tween: T, intervalCount: number = 10): T {
+  const startTime = new Date().getTime();
   for (let i = 1; i <= intervalCount; i++) {
     const timePerInterval = tween.length / intervalCount;
     const timeOfIthInterval = timePerInterval * i;
-    tween.update(tween.startTime + timeOfIthInterval);
+    tween.update(startTime + timeOfIthInterval);
   }
   return tween;
 }
