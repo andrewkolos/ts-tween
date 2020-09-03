@@ -1,7 +1,7 @@
-import { Sequence, Sequenced } from '../../src/sequence';
-import { Tween } from '../../src/tween/tween';
-import { Easings } from '../../src/easing/easings';
-import { Timeline } from '../../src/timeline';
+import { Sequence, Sequenced } from '../../../src/sequence';
+import { Tween } from '../../../src/tween/tween';
+import { Easings } from '../../../src/easing/easings';
+import { Timeline } from '../../../src/timeline';
 
 function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): Sequenced<T>[] {
   if (times.length !== timelines.length) {
@@ -56,6 +56,8 @@ describe(nameof(Sequence), () => {
         timeline: four,
       }
     ]);
+    const completedHandler = jest.fn();
+    sequence.on('completed', completedHandler);
 
     testLocalTimes([0, 0, 0, 0]);
     sequence.seek(500);
@@ -69,8 +71,10 @@ describe(nameof(Sequence), () => {
     sequence.seek(2499);
     testLocalTimes([1000, 1000, 1000, 1000]);
 
+    expect(completedHandler).toBeCalledTimes(1);
+
     function testLocalTimes(expectedLocalTimes: [number, number, number, number]) {
-      [one, two, three, four].forEach((item, index) => expect(item.localTime).toBe(expectedLocalTimes[index]));
+      [one, two, three, four].forEach((item, index) => expect(item.playheadPosition).toBe(expectedLocalTimes[index]));
     }
   });
 
@@ -114,8 +118,8 @@ describe(nameof(Sequence), () => {
     testActiveTimelinesHaving([]);
 
     function testActiveTimelinesHaving(tweens: Tween<number>[]) {
-      expect(sequence.activeTimelines.size).toBe(tweens.length);
-      expect(tweens.every(t => sequence.activeTimelines.has(t)));
+      expect(sequence.getActiveTimelines().size).toBe(tweens.length);
+      expect(tweens.every(t => sequence.getActiveTimelines().has(t)));
     }
   });
 
@@ -134,13 +138,12 @@ describe(nameof(Sequence), () => {
       },
     ]);
 
-    const active = sequence.activeTimelines;
     sequence.seek(1000);
     sequence.seek(500);
-    expect(one.localTime).toBe(500);
-    expect(two.localTime).toBe(0);
-    expect(active.has(one)).toBe(true);
-    expect(active.has(two)).toBe(true);
+    expect(one.playheadPosition).toBe(500);
+    expect(two.playheadPosition).toBe(0);
+    expect(sequence.getActiveTimelines().has(one)).toBe(true);
+    expect(sequence.getActiveTimelines().has(two)).toBe(true);
   });
 
   it('correctly fires timeline activation/deactivation events when playing normally', () => {
@@ -294,4 +297,4 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * progress;
 }
 
-function progressOf(timeline: Timeline) { return timeline.localTime / timeline.length };
+function progressOf(timeline: Timeline) { return timeline.playheadPosition / timeline.length };

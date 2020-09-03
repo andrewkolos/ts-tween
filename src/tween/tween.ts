@@ -12,10 +12,14 @@ import { getNow } from 'misc/getNow';
 
 interface TweenEvents<T> {
   completed: (source: Tween<T>) => void;
-  sought: (from: number, to: number, source: Tween<T>) => void;
+  sought: (value: {from: number, to: number}, source: Tween<T>) => void;
   update: (value: T, source: Tween<T>) => void;
 }
 
+/**
+ * Given a
+ * @template T 
+ */
 export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
   public static defaults(setValue?: Partial<DefaultableTweenOpts>): Readonly<Required<DefaultableTweenOpts>> {
@@ -45,7 +49,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.internalTimer = new LazyTimer(completeOpts.length);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
-      .on('sought', (from, to) => this.emit('sought', from, to, this))
+      .on('sought', ({from, to}) => this.emit('sought', {from, to}, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
         this.emit('update', this._target, this);

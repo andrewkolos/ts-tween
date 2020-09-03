@@ -1,16 +1,11 @@
 import { Timeline } from 'timeline';
-import Collections from 'typescript-collections';
 import { Sequenced } from './sequenced-timeline';
 import { Sequence } from './sequence';
 
 export class SequenceBuilder<T extends Timeline> {
 
-  private readonly items: Collections.BSTreeKV<{ startTime: number }, Sequenced<T>>;
-
-  constructor() {
-    this.items = new Collections.BSTreeKV((o1: Sequenced<T>, o2: Sequenced<T>) =>
-      o1.startTime - o2.startTime);
-  }
+  private latestEndTime = 0;
+  private readonly items: Sequenced<T>[] = [];
 
   /**
    * Adds a new timeline and makes it the last of the sequence.
@@ -22,18 +17,16 @@ export class SequenceBuilder<T extends Timeline> {
    * t_endOfPrevious + timeOffset < 0.
    */
   public append(timeline: T, timeOffset = 0): this {
-    this.items.add({
-      startTime: Math.max(this.items.maximum.length + timeOffset, 0),
+    const startTime = Math.max(this.latestEndTime + timeOffset, 0);
+    this.items.push({
+      startTime: Math.max(startTime, 0),
       timeline,
     });
+    this.latestEndTime = Math.max(this.latestEndTime, startTime + timeline.length);
     return this;
   }
 
   public build(): Sequence<T> {
-    return new Sequence(this.items.toArray());
-  }
-
-  public buildAndStart(): Sequence<T> {
-    return this.build();
+    return new Sequence(this.items);
   }
 }
