@@ -17,10 +17,18 @@ interface SequenceEvents<T extends Timeline> {
 export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>> implements Timeline {
   private internalTimer: LazyTimer;
   private readonly items: Sequenced<T>[];
-  private readonly activeTimelines = new Set<T>();
+  private readonly _activeTimelines = new Set<T>();
 
   public get localTime() {
     return this.internalTimer.localTime;
+  }
+
+  /**
+   * The timelines that are currently playing. More specifically, all timelines that advanced
+   * during this sequence's last update.
+   */
+  public get activeTimelines(): ReadonlySet<T> {
+    return this._activeTimelines;
   }
 
   public constructor(sequenceItems: Sequenced<T>[]) {
@@ -69,23 +77,52 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
   }
 
   private updateTimelines() {
-    const timelinesUpdated = new Set<T>();
     this.items.forEach(si => {
       const { startTime, timeline } = si;
-      if (this.localTime > startTime && this.localTime <= startTime + timeline.length) {
-        if (!this.activeTimelines.has(timeline)) {
-          this.emit('timelineActive', timeline, this);
+      if (itemIsInFutureButIsAlsoInProgress(si, this)) {
+        removeFromActive(timeline, this);
+        timeline.seek(0).stop();
+      }
+      if (itemIsInPastButIsNotCompleted(si, this)) {
+        removeFromActive(timeline, this);
+        timeline.seek(timeline.length).stop();
+      } else if (startTime <= this.localTime && this.localTime <= startTime + timeline.length) {
+        addToActive(timeline, this);
+        if (timeline.stopped) {
+          timeline.start();
         }
         timeline.seek(this.localTime - startTime);
-        timelinesUpdated.add(timeline);
+        if (timeline.localTime >= timeline.length) {
+          removeFromActive(timeline, this);
+        }
       }
     });
 
-    for (const at of this.activeTimelines.values()) {
-      if (!timelinesUpdated.has(at)) {
-        this.emit('timelineDeactive', at, this)
-        this.activeTimelines.delete(at);
-      }
+    function itemIsInFutureButIsAlsoInProgress(item: Sequenced<T>, self: Sequence<T>) {
+      return self.localTime < item.startTime &&
+        item.timeline.localTime > 0;
+    }
+
+    function itemIsInPastButIsNotCompleted(item: Sequenced<T>, self: Sequence<T>) {
+      const {startTime, timeline} = item;
+      return self.localTime > startTime + timeline.length &&
+        timeline.localTime < timeline.length;
+    }
+
+    function addToActive(timeline: T, self: Sequence<T>) {
+      if (isActive(timeline, self)) return;
+      self._activeTimelines.add(timeline);
+      self.emit('timelineActive', timeline, self);
+    }
+
+    function removeFromActive(timeline: T, self: Sequence<T>) {
+      if (!isActive(timeline, self)) return;
+      self._activeTimelines.delete(timeline);
+      self.emit('timelineDeactive', timeline, self);
+    }
+
+    function isActive(timeline: T, self: Sequence<T>) {
+      return self._activeTimelines.has(timeline);
     }
   }
 
