@@ -14,7 +14,7 @@ describe(nameof(Tween), () => {
         const progress = tween.localTime / tween.length;
         expect(target).toBeCloseTo(lerp(start, end, progress));
       })
-      .on('complete', () => {
+      .on('completed', () => {
         done();
       });
 
@@ -36,7 +36,7 @@ describe(nameof(Tween), () => {
         const progress = source.localTime / source.length;
         expect(value.a).toBeCloseTo(lerp(start.a, end.a, progress));
       })
-      .on('complete', () => done());
+      .on('completed', () => done());
 
     completeTween(tween);
   });
@@ -56,7 +56,7 @@ describe(nameof(Tween), () => {
         .on('update', (value) => {
           expect(value).toBe(start);
         })
-        .on('complete', () => done());
+        .on('completed', () => done());
       completeTween(tween);
       expect(tween.target).toBe(start);
     });
@@ -72,7 +72,7 @@ describe(nameof(Tween), () => {
           expect(subVal).toBeCloseTo(subValExpected);
         });
       })
-      .on('complete', () => done());
+      .on('completed', () => done());
 
     completeTween(tween);
   });
@@ -96,7 +96,7 @@ describe(nameof(Tween), () => {
     };
 
     const tween = Tween.get(start).to(end).withDefaults()
-      .on('complete', () => {
+      .on('completed', () => {
         expect(start).toEqual(end);
         expect(start.b).toBe(b);
         done();

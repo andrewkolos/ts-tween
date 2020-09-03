@@ -5,10 +5,10 @@ import { EventEmitter } from '@akolos/event-emitter';
 import { getNow } from 'misc/getNow';
 
 interface SequenceEvents<T extends Timeline> {
-  complete: (source: Sequence<T>) => void;
-  seek: (from: number, to: number, source: Sequence<T>) => void;
-  timelineActive: (timeline: T, source: Sequence<T>) => void;
-  timelineDeactive: (timeline: T, source: Sequence<T>) => void;
+  completed: (source: Sequence<T>) => void;
+  sought: (value: {from: number, to: number}, source: Sequence<T>) => void;
+  timelineActivated: (timeline: T, source: Sequence<T>) => void;
+  timelineDeactivated: (timeline: T, source: Sequence<T>) => void;
   update: (dt: number, source: Sequence<T>) => void;
 }
 
@@ -37,8 +37,8 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     }, 0);
     this.internalTimer = new LazyTimer(latestEndingTime);
     this.internalTimer
-      .on('complete', () => this.emit('complete', this))
-      .on('seek', (from, to) => this.emit('seek', from, to, this))
+      .on('completed', () => this.emit('completed', this))
+      .on('sought', ({from, to}) => this.emit('sought', {from, to}, this))
       .on('update', (dt) => {
         this.updateTimelines();
         this.emit('update', dt, this);
@@ -92,13 +92,13 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     function addToActive(timeline: T, self: Sequence<T>) {
       if (isActive(timeline, self)) return;
       self._activeTimelines.add(timeline);
-      self.emit('timelineActive', timeline, self);
+      self.emit('timelineActivated', timeline, self);
     }
 
     function removeFromActive(timeline: T, self: Sequence<T>) {
       if (!isActive(timeline, self)) return;
       self._activeTimelines.delete(timeline);
-      self.emit('timelineDeactive', timeline, self);
+      self.emit('timelineDeactivated', timeline, self);
     }
 
     function isActive(timeline: T, self: Sequence<T>) {

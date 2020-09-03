@@ -11,8 +11,8 @@ import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from 'misc/getNow';
 
 interface TweenEvents<T> {
-  complete: (source: Tween<T>) => void;
-  seek: (from: number, to: number, source: Tween<T>) => void;
+  completed: (source: Tween<T>) => void;
+  sought: (from: number, to: number, source: Tween<T>) => void;
   update: (value: T, source: Tween<T>) => void;
 }
 
@@ -44,8 +44,8 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
     this.internalTimer = new LazyTimer(completeOpts.length);
     this.internalTimer
-      .on('complete', () => this.emit('complete', this))
-      .on('seek', (from, to) => this.emit('seek', from, to, this))
+      .on('completed', () => this.emit('completed', this))
+      .on('sought', (from, to) => this.emit('sought', from, to, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
         this.emit('update', this._target, this);

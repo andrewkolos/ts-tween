@@ -3,8 +3,8 @@ import { Timeline } from 'timeline';
 import { getNow } from 'misc/getNow';
 
 interface LazyTimerEvents {
-  complete: (source: LazyTimer) => void;
-  seek: (from: number, to: number, source: LazyTimer) => void;
+  completed: (source: LazyTimer) => void;
+  sought: (value: {from: number, to: number}, source: LazyTimer) => void;
   update: (dt: number, source: LazyTimer) => void;
 }
 
@@ -48,7 +48,7 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     this.emit('update', dt, this);
 
     if (this._localTime >= this.length && this._localTime >= previousLocalTime) {
-      this.emit('complete', this);
+      this.emit('completed', this);
     }
 
     this.timeOfLastUpdate = now;

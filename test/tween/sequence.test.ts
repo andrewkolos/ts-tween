@@ -27,8 +27,7 @@ describe(nameof(Sequence), () => {
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(seq)));
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(tweenZeroToOne)));
       })
-      .on('complete', () => done())
-      ;
+      .on('completed', () => done());
 
     completeSequence(seq);
   });
@@ -192,7 +191,8 @@ describe(nameof(Sequence), () => {
 
     tests.forEach((t => t.test()));
 
-    function addActiveToggleListenerFor(tween: Tween<number> | null, eventName: 'timelineActive' | 'timelineDeactive') {
+    function addActiveToggleListenerFor(tween: Tween<number> | null,
+      eventName: 'timelineActivated' | 'timelineDeactivated') {
       let alreadyRemovedCb = false;
       const cb = jest.fn();
       sequence.on(eventName, cb);
@@ -210,10 +210,10 @@ describe(nameof(Sequence), () => {
     }
 
     function addActiveListenerFor(tween: Tween<number> | null) {
-      return addActiveToggleListenerFor(tween, 'timelineActive');
+      return addActiveToggleListenerFor(tween, 'timelineActivated');
     }
     function addDeactiveListenerFor(tween: Tween<number> | null) {
-      return addActiveToggleListenerFor(tween, 'timelineDeactive');
+      return addActiveToggleListenerFor(tween, 'timelineDeactivated');
     }
   });
 
@@ -262,7 +262,7 @@ describe(nameof(Sequence), () => {
     testThreeDeactivating();
     sequence.seek(2601);
 
-    function addActiveToggleListenerFor(tween: Tween<number>, eventName: 'timelineActive' | 'timelineDeactive') {
+    function addActiveToggleListenerFor(tween: Tween<number>, eventName: 'timelineActivated' | 'timelineDeactivated') {
       let matchCounter = 0;
       let counter = 0;
       const cb = jest.fn((eventTween: Tween<number>) => { if (tween === eventTween) matchCounter++ });
@@ -273,10 +273,10 @@ describe(nameof(Sequence), () => {
     }
 
     function addActiveListenerFor(tween: Tween<number>) {
-      return addActiveToggleListenerFor(tween, 'timelineActive');
+      return addActiveToggleListenerFor(tween, 'timelineActivated');
     }
     function addDeactiveListenerFor(tween: Tween<number>) {
-      return addActiveToggleListenerFor(tween, 'timelineDeactive');
+      return addActiveToggleListenerFor(tween, 'timelineDeactivated');
     }
   });
 });
