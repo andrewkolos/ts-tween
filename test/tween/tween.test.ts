@@ -41,29 +41,30 @@ describe(nameof(Tween), () => {
     completeTween(tween);
   });
 
-  it('correctly preserves target identity when not instructed to avoid writing updates to target', (done) => {
-    const start = {
-      a: 1,
-      b: 2,
-    };
+  it('correctly preserves the identity of target, which should point object given to tween at construction time',
+    (done) => {
+      const start = {
+        a: 1,
+        b: 2,
+      };
 
-    const end = {
-      a: 10,
-    };
+      const end = {
+        a: 10,
+      };
 
-    const tween = Tween.get(start).to(end).withDefaults()
-      .on('update', (value) => {
-        expect(value).toBe(start);
-      })
-      .on('complete', () => done());
-    completeTween(tween);
-    expect(tween.target).toBe(start);
-  });
+      const tween = Tween.get(start).to(end).withDefaults()
+        .on('update', (value) => {
+          expect(value).toBe(start);
+        })
+        .on('complete', () => done());
+      completeTween(tween);
+      expect(tween.target).toBe(start);
+    });
 
   it('correctly tweens arrays', (done) => {
     const start = [1, 2, 3];
     const end = [10, 20, 30];
-    const tween = Tween.get(clone(start)).to(end).with({ easing: Easings.linear})
+    const tween = Tween.get(clone(start)).to(end).with({ easing: Easings.linear })
       .on('update', (value) => {
         const progress = tween.localTime / tween.length;
         value.forEach((subVal, index) => {
@@ -114,6 +115,27 @@ describe(nameof(Tween), () => {
     } as any)
       .overTime(1000)).toThrow();
   });
+
+  it('updates properly when asked to seek to a specific time', () => {
+    const start = 0;
+    const end = 10;
+    const tween = Tween.get(start).to(end).with(linearOpts).start();
+
+    tween.seek(tween.length / 10);
+    expect(tween.target).toBeCloseTo(1);
+    tween.seek(0);
+    expect(tween.target).toBe(0);
+    tween.seek(tween.length / 10 * 3);
+    expect(tween.target).toBeCloseTo(3);
+    tween.seek(-100);
+    expect(tween.target).toBe(0);
+    tween.seek(tween.length / 2);
+    expect(tween.target).toBeCloseTo(5);
+    tween.seek(tween.length + 1);
+    expect(tween.target).toBe(10);
+    tween.seek(tween.length / 2);
+    expect(tween.target).toBeCloseTo(5);
+  })
 });
 
 function completeTween<T extends Tween<unknown>>(tween: T, intervalCount: number = 10): T {

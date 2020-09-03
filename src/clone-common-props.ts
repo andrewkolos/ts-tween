@@ -8,7 +8,7 @@ export function cloneCommonProps<L, R extends DeepPartial<L>>(cloneFrom: L, look
     case 'string':
       if (typeof lookForPropsIn !== typeof cloneFrom) throwTypeMismatchError();
       // Type inference does not work with `switch` statements, so we have to assert here.
-      return cloneFrom as unknown as R; 
+      return cloneFrom as unknown as R;
     case 'object':
       if (Array.isArray(cloneFrom) !== Array.isArray(lookForPropsIn)) throwTypeMismatchError();
       const result = (Array.isArray(lookForPropsIn) ? [] : {}) as R;

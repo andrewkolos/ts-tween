@@ -1,6 +1,6 @@
 import { EventEmitter } from '@akolos/event-emitter';
 import { Easings } from 'easing';
-import { TweenOpts, cloneTweenOpts } from './opts';
+import { TweenOpts, cloneTweenOpts, DefaultableTweenOpts } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from 'deep-partial';
 import { Timeline } from 'timeline';
@@ -20,14 +20,14 @@ interface TweenEvents<T> {
 
 export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
-  public static defaults(setValue?: Partial<TweenOpts>): Readonly<Required<TweenOpts>> {
+  public static defaults(setValue?: Partial<DefaultableTweenOpts>): Readonly<Required<DefaultableTweenOpts>> {
     if (setValue != null) {
       Object.assign(Tween.defaultOpts, setValue);
     }
     return this.defaultOpts;
   }
 
-  private static defaultOpts: Required<TweenOpts> = {
+  private static defaultOpts: DefaultableTweenOpts = {
     length: 1000,
     easing: Easings.easeOutQuad,
   };
@@ -98,7 +98,7 @@ export namespace Tween {
 }
 
 function fillMissingOptions(opts: TweenOpts): Required<TweenOpts> {
-  const defaultsClone = cloneTweenOpts(Tween.defaults());
+  const defaults = Object.assign(cloneTweenOpts(Tween.defaults()), { startTime: getNow() });
   const optsClone = cloneTweenOpts(opts);
-  return Object.assign(defaultsClone, optsClone);
+  return Object.assign(defaults, optsClone);
 }

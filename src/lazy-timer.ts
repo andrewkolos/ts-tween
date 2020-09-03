@@ -10,12 +10,16 @@ interface LazyTimerEvents {
   update: (dt: number, source: LazyTimer) => void;
 }
 
+export interface LazyTimerOpts {
+  startTime?: number;
+}
+
 export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline {
 
   private _localTime: number;
 
   private _stopped = true;
-  private timeOfLastUpdate?: number;
+  private timeOfLastUpdate: number;
 
   public get localTime() {
     return this._localTime;
@@ -25,13 +29,13 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     return this._stopped;
   }
 
-  public get completed() {
-    return this.isComplete();
-  }
-
-  public constructor(public readonly length: number) {
+  public constructor(public readonly length: number, opts: LazyTimerOpts = {}) {
     super();
+
+    const now = opts.startTime != null ? opts.startTime : getNow();
+
     this._localTime = 0;
+    this.timeOfLastUpdate = now;
   }
 
   public start(): this {
@@ -45,9 +49,10 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
   }
 
   public seek(time: number): this {
-    this._localTime = Math.min(time, this.length);
-    this.isComplete();
-    this.setTimeOfLastUpdateToNow();
+    const now = getNow();
+    this._localTime = time;
+    this.timeOfLastUpdate = now;
+    this.update(now)
     return this;
   }
 
@@ -60,16 +65,14 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
   }
 
   public update(now = getNow()) {
-    if (this.isComplete() || this.stopped) return;
+    const previousLocalTime = this._localTime;
 
     const dt = now - timeOfLastUpdate(this);
-
-    const wasAlreadyCompleted = this.completed;
-    this._localTime += dt;
+    this._localTime = Math.max(Math.min(this._localTime + dt, this.length), 0);
 
     this.emit('update', dt, this);
 
-    if (this.isComplete() && !wasAlreadyCompleted) {
+    if (this._localTime >= this.length && this._localTime >= previousLocalTime) {
       this.emit('complete', this);
     }
 
@@ -81,10 +84,6 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
       }
       return self.timeOfLastUpdate;
     }
-  }
-
-  private isComplete() {
-    return this._localTime >= this.length;
   }
 
   private setTimeOfLastUpdateToNow() {
