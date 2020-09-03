@@ -1,6 +1,8 @@
 import { EventEmitter } from '@akolos/event-emitter';
 import { Easings } from 'easing';
-import { TweenOpts, cloneTweenOpts, DefaultableTweenOpts } from './opts';
+import { TweenOpts } from './opts/opts';
+import { cloneTweenOpts } from './opts/clone-tween-opts';
+import { DefaultableTweenOpts } from './opts/defaultable-tween-opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from 'deep-partial';
 import { Timeline } from 'timeline';
@@ -17,11 +19,16 @@ interface TweenEvents<T> {
 }
 
 /**
- * Given a
- * @template T 
+ * When given a time, interpolates or "tweens" a value (or values in an object) towards another.
+ * @template T The type of the value to be interpolated.
  */
 export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
+  /**
+   * Gets or sets default options for constructing future tweens.
+   * @param [setValue] If not undefined, these properties will be copied into the default options.
+   * @returns defaults The current default options.
+   */
   public static defaults(setValue?: Partial<DefaultableTweenOpts>): Readonly<Required<DefaultableTweenOpts>> {
     if (setValue != null) {
       Object.assign(Tween.defaultOpts, setValue);
@@ -39,6 +46,12 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   private readonly tweening: Tweening<T>;
   private _target: T;
 
+  /**
+   * Creates a tween.
+   * @param target The value to be interpolated. Will be written to whenever this tween is updated.
+   * @param tweenTo The value to tween towards.
+   * @param opts Describes how the target will be tweened.
+   */
   public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOpts) {
     super();
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
@@ -56,29 +69,55 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
       });
   }
 
+  /**
+   * The value being interpolated.
+   */
   public get target(): T {
     return this._target;
   }
 
+  /**
+   * The length or duration of the interpolation.
+   */
   public get length(): number {
     return this.internalTimer.length;
   }
 
+  /**
+   * The progress of the interpolation, in milliseconds.
+   */
   public get localTime(): number {
     return this.internalTimer.localTime;
   }
 
+  /**
+   * Sets the local time (i.e. the progress of the interpolation, in milliseconds),
+   * and then updates the value of the target.
+   * @param time The local time (i.e. time from the start) to seek to, in the range [0, this.length].
+   * @returns The tween, for method chaining.
+   */
   public seek(time: number): this {
     this.internalTimer.seek(time);
     return this;
   }
 
-  public update(now = getNow()) {
+  /**
+   * Updates the tween to the current time, or, if another time is provided,
+   * to that time.
+   * @param [now] The time (since unix epoch) to seek to.
+   */
+  public update(now = getNow()): this {
     this.internalTimer.update(now);
+    return this;
   }
 }
 
 export namespace Tween {
+  /**
+   * Begins the construction of a Tween, using the provided value as its target.
+   * @param target The target of the tween (i.e. the value or to tween/interpolate).
+   * @returns the next step in the building process, where the value to interpolate towards is given.
+   */
   export function get<T>(target: T): TweenToStep<T> {
     return getBuilderStep(target);
   }

@@ -74,7 +74,7 @@ describe(nameof(Sequence), () => {
     expect(completedHandler).toBeCalledTimes(1);
 
     function testLocalTimes(expectedLocalTimes: [number, number, number, number]) {
-      [one, two, three, four].forEach((item, index) => expect(item.playheadPosition).toBe(expectedLocalTimes[index]));
+      [one, two, three, four].forEach((item, index) => expect(item.localTime).toBe(expectedLocalTimes[index]));
     }
   });
 
@@ -140,8 +140,8 @@ describe(nameof(Sequence), () => {
 
     sequence.seek(1000);
     sequence.seek(500);
-    expect(one.playheadPosition).toBe(500);
-    expect(two.playheadPosition).toBe(0);
+    expect(one.localTime).toBe(500);
+    expect(two.localTime).toBe(0);
     expect(sequence.getActiveTimelines().has(one)).toBe(true);
     expect(sequence.getActiveTimelines().has(two)).toBe(true);
   });
@@ -297,4 +297,4 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * progress;
 }
 
-function progressOf(timeline: Timeline) { return timeline.playheadPosition / timeline.length };
+function progressOf(timeline: Timeline) { return timeline.localTime / timeline.length };

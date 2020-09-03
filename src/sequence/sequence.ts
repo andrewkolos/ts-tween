@@ -6,7 +6,7 @@ import { getNow } from 'misc/getNow';
 
 interface SequenceEvents<T extends Timeline> {
   completed: (source: Sequence<T>) => void;
-  sought: (value: {from: number, to: number}, source: Sequence<T>) => void;
+  sought: (value: { from: number, to: number }, source: Sequence<T>) => void;
   timelineActivated: (timeline: T, source: Sequence<T>) => void;
   timelineDeactivated: (timeline: T, source: Sequence<T>) => void;
   update: (dt: number, source: Sequence<T>) => void;
@@ -14,11 +14,22 @@ interface SequenceEvents<T extends Timeline> {
 
 export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>> implements Timeline {
   private internalTimer: LazyTimer;
-  private readonly _items: Sequenced<T>[];
+  private readonly _items: ReadonlySet<Sequenced<T>>;
   private readonly _activeTimelines = new Set<T>();
 
-  public get playheadPosition() {
-    return this.internalTimer.playheadPosition;
+  /**
+   * The progress of the sequence, in milliseconds.
+   */
+  public get localTime(): number {
+    return this.internalTimer.localTime;
+  }
+
+  /**
+   * The total length of the sequence, from the start time of the first item, to the end of time of the
+   * last item.
+   */
+  public get length(): number {
+    return this.internalTimer.length;
   }
 
   /**
@@ -28,38 +39,51 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     return new Set(this._activeTimelines);
   }
 
-  public getItems(): ReadonlyArray<Sequenced<T>>{
-    return this._items.slice();
+  /**
+   * All timelines included in this sequence along with their start times.
+   */
+  public getItems(): ReadonlyArray<Sequenced<T>> {
+    return [...this._items.values()];
   }
 
+  /**
+   * Creates a new sequence.
+   * @param sequenceItems The timelines to include in this sequence, with each having a start time.
+   */
   public constructor(sequenceItems: Sequenced<T>[]) {
     super();
-    this._items = sequenceItems.sort((a, b) => a.startTime - b.startTime);
+    this._items = new Set(sequenceItems.sort((a, b) => a.startTime - b.startTime));
     const latestEndingTime = sequenceItems.reduce((latestSoFar, currentItem) => {
       return Math.max(latestSoFar, currentItem.startTime + currentItem.timeline.length);
     }, 0);
     this.internalTimer = new LazyTimer(latestEndingTime);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
-      .on('sought', ({from, to}) => this.emit('sought', {from, to}, this))
+      .on('sought', ({ from, to }) => this.emit('sought', { from, to }, this))
       .on('update', (dt) => {
         this.updateTimelines();
         this.emit('update', dt, this);
       });
   }
 
+  /**
+   * Updates sequence to the current time, or another time, if provided.
+   * @param [currentTime] The time to use as the current time.
+   * @returns This sequence, for method chaining.
+   */
   public update(currentTime = getNow()): this {
     this.internalTimer.seek(currentTime);
     return this;
   }
 
+  /**
+   * Moves the sequence to the specified time.
+   * @param time The time, in milliseconds since the start, to seek to, up to the length of this sequence.
+   * @returns This sequence, for method chaining.
+   */
   public seek(time: number): this {
     this.internalTimer.seek(time);
     return this;
-  }
-
-  public get length() {
-    return this.internalTimer.length;
   }
 
   private updateTimelines() {
@@ -72,24 +96,24 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
       if (itemIsInPastButIsNotCompleted(si, this)) {
         removeFromActive(timeline, this);
         timeline.seek(timeline.length);
-      } else if (startTime <= this.playheadPosition && this.playheadPosition <= startTime + timeline.length) {
+      } else if (startTime <= this.localTime && this.localTime <= startTime + timeline.length) {
         addToActive(timeline, this);
-        timeline.seek(this.playheadPosition - startTime);
-        if (timeline.playheadPosition >= timeline.length) {
+        timeline.seek(this.localTime - startTime);
+        if (timeline.localTime >= timeline.length) {
           removeFromActive(timeline, this);
         }
       }
     });
 
     function itemIsInFutureButIsAlsoInProgress(item: Sequenced<T>, self: Sequence<T>) {
-      return self.playheadPosition < item.startTime &&
-        item.timeline.playheadPosition > 0;
+      return self.localTime < item.startTime &&
+        item.timeline.localTime > 0;
     }
 
     function itemIsInPastButIsNotCompleted(item: Sequenced<T>, self: Sequence<T>) {
-      const {startTime, timeline} = item;
-      return self.playheadPosition > startTime + timeline.length &&
-        timeline.playheadPosition < timeline.length;
+      const { startTime, timeline } = item;
+      return self.localTime > startTime + timeline.length &&
+        timeline.localTime < timeline.length;
     }
 
     function addToActive(timeline: T, self: Sequence<T>) {

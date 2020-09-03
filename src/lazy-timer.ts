@@ -39,7 +39,7 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     return this;
   }
 
-  public update(now = getNow()) {
+  public update(now = getNow()): this {
     const previousLocalTime = this._localTime;
 
     const dt = now - timeOfLastUpdate(this);
@@ -59,6 +59,8 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
       }
       return self.timeOfLastUpdate;
     }
+
+    return this;
   }
 
 }

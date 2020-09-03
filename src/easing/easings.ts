@@ -1,5 +1,3 @@
-// @ts-ignore
-import { EasingFunction } from './easings';
 import { DeepReadonly } from 'ts-essentials';
 
 const { cos, sin, PI, pow, sqrt } = Math;
