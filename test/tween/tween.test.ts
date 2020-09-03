@@ -119,7 +119,7 @@ describe(nameof(Tween), () => {
   it('updates properly when asked to seek to a specific time', () => {
     const start = 0;
     const end = 10;
-    const tween = Tween.get(start).to(end).with(linearOpts).start();
+    const tween = Tween.get(start).to(end).with(linearOpts);
 
     tween.seek(tween.length / 10);
     expect(tween.target).toBeCloseTo(1);

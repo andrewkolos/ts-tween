@@ -28,7 +28,7 @@ describe(nameof(Sequence), () => {
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(tweenZeroToOne)));
       })
       .on('complete', () => done())
-      .start();
+      ;
 
     completeSequence(seq);
   });
@@ -56,7 +56,7 @@ describe(nameof(Sequence), () => {
         startTime: 1499,
         timeline: four,
       }
-    ]).start();
+    ]);
 
     testLocalTimes([0, 0, 0, 0]);
     sequence.seek(500);
@@ -98,7 +98,7 @@ describe(nameof(Sequence), () => {
         startTime: 1499,
         timeline: four,
       }
-    ]).start();
+    ]);
 
     testActiveTimelinesHaving([]);
     sequence.seek(0);
@@ -133,7 +133,7 @@ describe(nameof(Sequence), () => {
         startTime: 500,
         timeline: two,
       },
-    ]).start();
+    ]);
 
     const active = sequence.activeTimelines;
     sequence.seek(1000);
@@ -162,7 +162,7 @@ describe(nameof(Sequence), () => {
         startTime: 1000,
         timeline: three,
       },
-    ]).start();
+    ]);
 
     const tests: { test: () => void }[] = [];
 
@@ -235,7 +235,7 @@ describe(nameof(Sequence), () => {
         startTime: 1600,
         timeline: three,
       },
-    ]).start();
+    ]);
 
     const testOneActivating = addActiveListenerFor(one);
     const testTwoActivating = addActiveListenerFor(two);

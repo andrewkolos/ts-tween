@@ -34,6 +34,6 @@ export class SequenceBuilder<T extends Timeline> {
   }
 
   public buildAndStart(): Sequence<T> {
-    return this.build().start();
+    return this.build();
   }
 }

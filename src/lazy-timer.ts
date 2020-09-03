@@ -4,8 +4,6 @@ import { getNow } from 'misc/getNow';
 
 interface LazyTimerEvents {
   complete: (source: LazyTimer) => void;
-  start: (source: LazyTimer) => void;
-  stop: (source: LazyTimer) => void;
   seek: (from: number, to: number, source: LazyTimer) => void;
   update: (dt: number, source: LazyTimer) => void;
 }
@@ -18,15 +16,10 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
 
   private _localTime: number;
 
-  private _stopped = true;
   private timeOfLastUpdate: number;
 
   public get localTime() {
     return this._localTime;
-  }
-
-  public get stopped() {
-    return this._stopped;
   }
 
   public constructor(public readonly length: number, opts: LazyTimerOpts = {}) {
@@ -38,29 +31,11 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     this.timeOfLastUpdate = now;
   }
 
-  public start(): this {
-    if (this._stopped) {
-      this.emit('start', this);
-      this.setTimeOfLastUpdateToNow();
-    }
-
-    this._stopped = false;
-    return this;
-  }
-
   public seek(time: number): this {
     const now = getNow();
     this._localTime = time;
     this.timeOfLastUpdate = now;
     this.update(now)
-    return this;
-  }
-
-  public stop(): this {
-    if (this._stopped) {
-      this.emit('stop', this);
-    }
-    this._stopped = true;
     return this;
   }
 
@@ -86,7 +61,4 @@ export class LazyTimer extends EventEmitter<LazyTimerEvents> implements Timeline
     }
   }
 
-  private setTimeOfLastUpdateToNow() {
-    this.timeOfLastUpdate = getNow();
-  }
 }

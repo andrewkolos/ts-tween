@@ -6,8 +6,6 @@ import { getNow } from 'misc/getNow';
 
 interface SequenceEvents<T extends Timeline> {
   complete: (source: Sequence<T>) => void;
-  stop: (source: Sequence<T>) => void;
-  start: (source: Sequence<T>) => void;
   seek: (from: number, to: number, source: Sequence<T>) => void;
   timelineActive: (timeline: T, source: Sequence<T>) => void;
   timelineDeactive: (timeline: T, source: Sequence<T>) => void;
@@ -38,9 +36,8 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
       return Math.max(latestSoFar, currentItem.startTime + currentItem.timeline.length);
     }, 0);
     this.internalTimer = new LazyTimer(latestEndingTime);
-    this.internalTimer.on('start', () => this.emit('start', this))
+    this.internalTimer
       .on('complete', () => this.emit('complete', this))
-      .on('start', () => this.emit('start', this))
       .on('seek', (from, to) => this.emit('seek', from, to, this))
       .on('update', (dt) => {
         this.updateTimelines();
@@ -58,20 +55,6 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     return this;
   }
 
-  public start(): this {
-    this.internalTimer.start();
-    return this;
-  }
-
-  public stop(): this {
-    this.internalTimer.stop();
-    return this;
-  }
-
-  public get stopped(): boolean {
-    return this.internalTimer.stopped;
-  }
-
   public get length() {
     return this.internalTimer.length;
   }
@@ -81,16 +64,13 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
       const { startTime, timeline } = si;
       if (itemIsInFutureButIsAlsoInProgress(si, this)) {
         removeFromActive(timeline, this);
-        timeline.seek(0).stop();
+        timeline.seek(0);
       }
       if (itemIsInPastButIsNotCompleted(si, this)) {
         removeFromActive(timeline, this);
-        timeline.seek(timeline.length).stop();
+        timeline.seek(timeline.length);
       } else if (startTime <= this.localTime && this.localTime <= startTime + timeline.length) {
         addToActive(timeline, this);
-        if (timeline.stopped) {
-          timeline.start();
-        }
         timeline.seek(this.localTime - startTime);
         if (timeline.localTime >= timeline.length) {
           removeFromActive(timeline, this);
