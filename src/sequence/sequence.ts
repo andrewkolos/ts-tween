@@ -1,8 +1,8 @@
-import { Timeline } from 'timeline';
+import { Timeline } from '../timeline';
 import { Sequenced } from './sequenced-timeline';
-import { LazyTimer } from 'lazy-timer';
+import { LazyTimer } from './../lazy-timer';
 import { EventEmitter } from '@akolos/event-emitter';
-import { getNow } from 'misc/getNow';
+import { getNow } from '../misc/getNow';
 
 interface SequenceEvents<T extends Timeline> {
   completed: (source: Sequence<T>) => void;
@@ -59,8 +59,8 @@ export class Sequence<T extends Timeline> extends EventEmitter<SequenceEvents<T>
     this.internalTimer = new LazyTimer(latestEndingTime);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
-      .on('sought', ({ from, to }) => this.emit('sought', { from, to }, this))
-      .on('update', (dt) => {
+      .on('sought', ({ from, to }: {from: number, to: number}) => this.emit('sought', { from, to }, this))
+      .on('update', (dt: number) => {
         this.updateTimelines();
         this.emit('update', dt, this);
       });

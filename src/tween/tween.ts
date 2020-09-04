@@ -1,16 +1,15 @@
 import { EventEmitter } from '@akolos/event-emitter';
-import { Easings } from 'easing';
+import { Easings } from '../easing';
 import { TweenOpts } from './opts/opts';
-import { cloneTweenOpts } from './opts/clone-tween-opts';
 import { DefaultableTweenOpts } from './opts/defaultable-tween-opts';
 import { Tweening, tweening } from './tweening';
-import { DeepPartial } from 'deep-partial';
-import { Timeline } from 'timeline';
+import { DeepPartial } from '../deep-partial';
+import { Timeline } from '../timeline';
 import { TweenToStep } from './builder/tween-to-step';
 import { get as getBuilderStep } from './builder/get';
-import { LazyTimer } from 'lazy-timer';
+import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
-import { getNow } from 'misc/getNow';
+import { getNow } from '../misc/getNow';
 
 interface TweenEvents<T> {
   completed: (source: Tween<T>) => void;
@@ -62,7 +61,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.internalTimer = new LazyTimer(completeOpts.length);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
-      .on('sought', ({from, to}) => this.emit('sought', {from, to}, this))
+      .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
         this.emit('update', this._target, this);
@@ -124,7 +123,7 @@ export namespace Tween {
 }
 
 function fillMissingOptions(opts: TweenOpts): Required<TweenOpts> {
-  const defaults = Object.assign(cloneTweenOpts(Tween.defaults()), { startTime: getNow() });
-  const optsClone = cloneTweenOpts(opts);
+  const defaults = Object.assign(TweenOpts.clone(Tween.defaults()), { startTime: getNow() });
+  const optsClone = TweenOpts.clone(opts);
   return Object.assign(defaults, optsClone);
 }

@@ -1,6 +1,6 @@
 import { EventEmitter } from '@akolos/event-emitter';
-import { Timeline } from 'timeline';
-import { getNow } from 'misc/getNow';
+import { Timeline } from './timeline';
+import { getNow } from './misc/getNow';
 
 interface LazyTimerEvents {
   completed: (source: LazyTimer) => void;

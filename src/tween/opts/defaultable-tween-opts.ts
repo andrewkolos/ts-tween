@@ -1,4 +1,4 @@
-import { Easing } from 'easing';
+import { Easing } from '../../easing';
 
 export interface DefaultableTweenOpts {
   length: number;

@@ -60,4 +60,11 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
     }
     return new Tween(this.target, this.destination, { length });
   }
+
+}
+
+export namespace TweenBuilder {
+  export interface ToStep<T> extends TweenToStep<T> { };
+  export interface FromStep<T> extends TweenFromStep<T> {};
+  export interface WithStep<T> extends TweenWithStep<T> {};
 }
