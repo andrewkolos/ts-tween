@@ -1,41 +1,43 @@
 import { EventEmitter } from '@akolos/event-emitter';
 import { Easings } from '../easing';
-import { TweenOpts } from './opts/opts';
-import { DefaultableTweenOpts } from './opts/defaultable-tween-opts';
+import { InterpolatorOpts } from './opts/opts';
+import { DefaultableInterpolatorOpts } from './opts/defaultable-tween-opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
 import { Timeline } from '../timeline';
-import { TweenToStep } from './builder/tween-to-step';
+import { InterpolatorToStep } from './builder/interpolator-to-step';
 import { get as getBuilderStep } from './builder/get';
 import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from '../misc/getNow';
 
-interface TweenEvents<T> {
-  completed: (source: Tween<T>) => void;
-  sought: (value: {from: number, to: number}, source: Tween<T>) => void;
-  update: (value: T, source: Tween<T>) => void;
+interface InterpolatorEvents<T> {
+  completed: (source: Interpolator<T>) => void;
+  sought: (value: { from: number, to: number }, source: Interpolator<T>) => void;
+  update: (value: T, source: Interpolator<T>) => void;
 }
 
 /**
  * When given a time, interpolates or "tweens" a value (or values in an object) towards another.
  * @template T The type of the value to be interpolated.
  */
-export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
+export class Interpolator<T> extends EventEmitter<InterpolatorEvents<T>> implements Timeline {
 
   /**
    * Gets or sets default options for constructing future tweens.
    * @param [setValue] If not undefined, these properties will be copied into the default options.
    * @returns defaults The current default options.
    */
-  public static defaults(setValue?: Partial<DefaultableTweenOpts>): Readonly<Required<DefaultableTweenOpts>> {
+  public static defaults(setValue?: Partial<DefaultableInterpolatorOpts>):
+    Readonly<Required<DefaultableInterpolatorOpts>> {
+
     if (setValue != null) {
-      Object.assign(Tween.defaultOpts, setValue);
+      Object.assign(Interpolator.defaultOpts, setValue);
     }
     return this.defaultOpts;
   }
 
-  private static defaultOpts: DefaultableTweenOpts = {
+  private static defaultOpts: DefaultableInterpolatorOpts = {
     length: 1000,
     easing: Easings.easeOutQuad,
   };
@@ -51,7 +53,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
    * @param tweenTo The value to tween towards.
    * @param opts Describes how the target will be tweened.
    */
-  public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOpts) {
+  public constructor(target: T, tweenTo: DeepPartial<T>, opts: InterpolatorOpts) {
     super();
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     const completeOpts = fillMissingOptions(opts);
@@ -61,7 +63,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.internalTimer = new LazyTimer(completeOpts.length);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
-      .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
+      .on('sought', ({ from, to }: { from: number, to: number }) => this.emit('sought', { from, to }, this))
       .on('update', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
         this.emit('update', this._target, this);
@@ -111,19 +113,19 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   }
 }
 
-export namespace Tween {
+export namespace Interpolator {
   /**
-   * Begins the construction of a Tween, using the provided value as its target.
+   * Begins the construction of a Interpolator, using the provided value as its target.
    * @param target The target of the tween (i.e. the value or to tween/interpolate).
    * @returns the next step in the building process, where the value to interpolate towards is given.
    */
-  export function get<T>(target: T): TweenToStep<T> {
+  export function get<T>(target: T): InterpolatorToStep<T> {
     return getBuilderStep(target);
   }
 }
 
-function fillMissingOptions(opts: TweenOpts): Required<TweenOpts> {
-  const defaults = Object.assign(TweenOpts.clone(Tween.defaults()), { startTime: getNow() });
-  const optsClone = TweenOpts.clone(opts);
+function fillMissingOptions(opts: InterpolatorOpts): Required<InterpolatorOpts> {
+  const defaults = Object.assign(InterpolatorOpts.clone(Interpolator.defaults()), { startTime: getNow() });
+  const optsClone = InterpolatorOpts.clone(opts);
   return Object.assign(defaults, optsClone);
 }

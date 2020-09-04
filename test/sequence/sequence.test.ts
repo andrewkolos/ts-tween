@@ -1,7 +1,7 @@
-import { Sequence, Sequenced } from '../../../src/sequence';
-import { Tween } from '../../../src/tween/tween';
-import { Easings } from '../../../src/easing/easings';
-import { Timeline } from '../../../src/timeline';
+import { Sequence, Sequenced } from '../../src/sequence';
+import { Interpolator } from '../../src/interpolator/interpolator';
+import { Easings } from '../../src/easing/easings';
+import { Timeline } from '../../src/timeline';
 
 function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): Sequenced<T>[] {
   if (times.length !== timelines.length) {
@@ -12,7 +12,7 @@ function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): 
 }
 
 function makeZeroToOneTween(startTime: number) {
-  return Tween.get(0).to(1).with({
+  return Interpolator.get(0).to(1).with({
     easing: Easings.linear,
     length: 1000,
     startTime,
@@ -117,7 +117,7 @@ describe(nameof(Sequence), () => {
     sequence.seek(2500);
     testActiveTimelinesHaving([]);
 
-    function testActiveTimelinesHaving(tweens: Tween<number>[]) {
+    function testActiveTimelinesHaving(tweens: Interpolator<number>[]) {
       expect(sequence.getActiveTimelines().size).toBe(tweens.length);
       expect(tweens.every(t => sequence.getActiveTimelines().has(t)));
     }
@@ -194,7 +194,7 @@ describe(nameof(Sequence), () => {
 
     tests.forEach((t => t.test()));
 
-    function addActiveToggleListenerFor(tween: Tween<number> | null,
+    function addActiveToggleListenerFor(tween: Interpolator<number> | null,
       eventName: 'timelineActivated' | 'timelineDeactivated') {
       let alreadyRemovedCb = false;
       const cb = jest.fn();
@@ -212,10 +212,10 @@ describe(nameof(Sequence), () => {
       return test;
     }
 
-    function addActiveListenerFor(tween: Tween<number> | null) {
+    function addActiveListenerFor(tween: Interpolator<number> | null) {
       return addActiveToggleListenerFor(tween, 'timelineActivated');
     }
-    function addDeactiveListenerFor(tween: Tween<number> | null) {
+    function addDeactiveListenerFor(tween: Interpolator<number> | null) {
       return addActiveToggleListenerFor(tween, 'timelineDeactivated');
     }
   });
@@ -265,20 +265,20 @@ describe(nameof(Sequence), () => {
     testThreeDeactivating();
     sequence.seek(2601);
 
-    function addActiveToggleListenerFor(tween: Tween<number>, eventName: 'timelineActivated' | 'timelineDeactivated') {
+    function addActiveToggleListenerFor(tween: Interpolator<number>, eventName: 'timelineActivated' | 'timelineDeactivated') {
       let matchCounter = 0;
       let counter = 0;
-      const cb = jest.fn((eventTween: Tween<number>) => { if (tween === eventTween) matchCounter++ });
+      const cb = jest.fn((eventTween: Interpolator<number>) => { if (tween === eventTween) matchCounter++ });
       sequence.on(eventName, cb);
       return () => {
         expect(matchCounter).toBe(++counter);
       }
     }
 
-    function addActiveListenerFor(tween: Tween<number>) {
+    function addActiveListenerFor(tween: Interpolator<number>) {
       return addActiveToggleListenerFor(tween, 'timelineActivated');
     }
-    function addDeactiveListenerFor(tween: Tween<number>) {
+    function addDeactiveListenerFor(tween: Interpolator<number>) {
       return addActiveToggleListenerFor(tween, 'timelineDeactivated');
     }
   });

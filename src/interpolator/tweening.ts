@@ -1,6 +1,6 @@
 import dedent from 'dedent';
-import { Easing } from './../easing';
-import { DeepPartial } from './../deep-partial';
+import { Easing } from '../easing';
+import { DeepPartial } from '../deep-partial';
 import { cloneCommonProps } from '../clone-common-props';
 import { clone } from '../clone';
 

@@ -1,6 +1,6 @@
 import { Easing } from '../../easing';
 
-export interface DefaultableTweenOpts {
+export interface DefaultableInterpolatorOpts {
   length: number;
   easing: Easing;
 }
