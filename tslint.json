@@ -17,7 +17,7 @@
         "import-name": false,
         "typedef": false,
         "no-any": false,
-        "no-unbound-method": true,
+        "no-unbound-method": false,
         "no-null-keyword": false,
         "variable-name": [
             true,
