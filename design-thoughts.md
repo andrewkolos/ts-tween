@@ -479,7 +479,17 @@ It's possible to put guardrails in place to prevent multiple composites from wor
 
 # November Revisit
 
-I have come back to this library because existing libraries still don't line up with my needs for Bastion Breach, and I want more practice with designing a library. I have reread through all my notes written so far.
+I have come back to this library because existing libraries still don't line up with my needs for Bastion Breach, and I want more practice with designing a library. I have reread through all my notes written so far, and made some mostly minor updates. I think I will go ahead with a more flexible, less safe implementation of this library. Here is what I would like to do:
+
+* Tweens start immediately upon creation. 
+* Construction
+  * There will be an included factory function that hides the constructor. 
+  * There will also be a function that creates a new factory, where the user can supply defaults for the duration and the easing used (i.e. `Tween.factory()`).
+  * There will also be a builder for situations where this syntax is preferable (i.e. `Tween.builder()`).
+  * The `factory` and `builder` will not do anything clever with the type system to keep everything optional upfront while making sure everything gets provided before a tween is started. Such a thing would be possible but would complicate the code and also give unclear typechecking errors, while more clear runtime errors could be thrown.
+* There will be no conflict handling performed by the library. Emitting a special event when a conflict happens could be a useful debugging tool for clients, but will be kept a nice-to-have.
+* We will add any potentially useful events.
+* Composites can take already created Tweens, and this will probably how they will be most often used.
 
 [^1]: While writing to an input might initially set off alarms, it makes sense for tweens. Most of the time, all we want to do is write changes to the target right away. Creating copies for every update would be a waste of computation time and every tween would have to be accompanied by an update handler--most of which would just say "write these values to the target".
 [^2]: It also makes minimum "getting started" examples simpler, which might make the library more marketable (via being simpler-to-use) even though the client code probably already has animation loop anyway that could just stick a `Tween.updateAll()` into.
