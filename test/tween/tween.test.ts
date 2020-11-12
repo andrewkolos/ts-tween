@@ -1,7 +1,7 @@
 import { Tween } from '../../src/tween/tween';
 import { Easings } from '../../src/easing/easings';
 import { clone } from '../../src/clone';
-import { cloneCommonProps } from '../../src/clone-common-props';
+import { makeTweenFactory} from '../../src/tween/tween-factory';
 
 const linearOpts = { length: 1000, easing: Easings.linear };
 
@@ -22,19 +22,23 @@ describe(nameof(Tween), () => {
   });
 
   it('correctly tweens flat objects', (done) => {
+    const factory = makeTweenFactory(linearOpts);
+
     const start = {
       a: 1,
       b: 2,
     };
 
+    const startClone = {...start};
+
     const end = {
       a: 10,
     };
 
-    const tween = Tween.get(cloneCommonProps(start, end)).to(end).with(linearOpts)
-      .on('update', (value, source) => {
-        const progress = source.localTime / source.length;
-        expect(value.a).toBeCloseTo(lerp(start.a, end.a, progress));
+    const tween = factory(start, end)
+      .on('update', () => {
+        const progress = tween.localTime / tween.length;
+        expect(start.a).toBeCloseTo(lerp(startClone.a, end.a, progress));
       })
       .on('completed', () => done());
 

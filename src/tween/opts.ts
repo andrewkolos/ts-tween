@@ -1,12 +1,12 @@
 import { Easing } from '../easing';
 
-export interface TweenOpts {
+export interface TweenOptions {
   easing: Easing;
   length: number;
 }
 
-export namespace TweenOpts {
-  export function clone<T extends TweenOpts>(opts: T): T {
+export namespace TweenOptions {
+  export function clone<T extends TweenOptions>(opts: T): T {
     return { ...opts };
   }
 }

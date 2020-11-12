@@ -1,5 +1,5 @@
 import { Tween } from '../tween';
-import { TweenOpts } from '../opts';
+import { TweenOptions } from '../opts';
 
 export interface TweenWithStep<T> {
   /**
@@ -7,5 +7,5 @@ export interface TweenWithStep<T> {
    * @param options The options/configuration to provide to the Tween.
    * @returns The completed Tween.
    */
-  with: (options: TweenOpts) => Tween<T>;
+  with: (options: TweenOptions) => Tween<T>;
 }

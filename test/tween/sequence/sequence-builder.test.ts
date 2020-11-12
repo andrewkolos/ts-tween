@@ -1,10 +1,10 @@
 import { SequenceBuilder } from '../../../src/sequence/sequence-builder';
 import { Sequenced } from '../../../src/sequence';
 import { Tween } from '../../../src/tween/tween';
-import { TweenOpts } from '../../../src/tween/opts';
+import { TweenOptions } from '../../../src/tween/opts';
 import { Easings } from '../../../src/easing';
 
-const linearOpts: TweenOpts = {
+const linearOpts: TweenOptions = {
   easing: Easings.linear,
   length: 1000,
 }

@@ -1,5 +1,5 @@
 import { Tween } from '../tween';
-import { TweenOpts } from '../opts';
+import { TweenOptions } from '../opts';
 import { TweenFromStep } from './tween-from-step';
 import { TweenToStep } from './tween-to-step';
 import { TweenWithStep } from './tween-with-step';
@@ -31,7 +31,7 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
    * @param options The options/configuration to provide to the Tween.
    * @returns The completed Tween.
    */
-  public with(options: TweenOpts): Tween<T> {
+  public with(options: TweenOptions): Tween<T> {
     if (this.target == null || this.destination == null) {
       throw Error('Missing information required to create Tween.');
     }

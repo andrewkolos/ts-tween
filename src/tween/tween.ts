@@ -1,5 +1,5 @@
 import { EventEmitter } from '@akolos/event-emitter';
-import { TweenOpts } from './opts';
+import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
 import { Timeline } from '../timeline';
@@ -9,7 +9,7 @@ import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from '../misc/getNow';
 
-interface TweenEvents<T> {
+export interface TweenEvents<T> {
   completed: (source: Tween<T>) => void;
   sought: (value: {from: number, to: number}, source: Tween<T>) => void;
   update: (value: T, source: Tween<T>) => void;
@@ -32,7 +32,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
    * @param tweenTo The value to tween towards.
    * @param opts Describes how the target will be tweened.
    */
-  public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOpts) {
+  public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
     super();
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     this._target = target;
