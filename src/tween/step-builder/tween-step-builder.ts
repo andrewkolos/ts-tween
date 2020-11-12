@@ -8,7 +8,7 @@ import { TweenWithStep } from './tween-with-step';
  * Builds instances of Tween using an ordered process of steps, as an alternative to the constructor syntax.
  * @template T The type of the value to be tweened.
  */
-export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenWithStep<T> {
+export class TweenStepBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenWithStep<T> {
   private target?: T;
   private destination?: Partial<T>;
 
@@ -40,7 +40,7 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
 
 }
 
-export namespace TweenBuilder {
+export namespace TweenStepBuilder {
   export interface ToStep<T> extends TweenToStep<T> { };
   export interface FromStep<T> extends TweenFromStep<T> {};
   export interface WithStep<T> extends TweenWithStep<T> {};

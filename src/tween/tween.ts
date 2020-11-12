@@ -3,11 +3,12 @@ import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
 import { Timeline } from '../timeline';
-import { TweenToStep } from './builder/tween-to-step';
-import { get as getBuilderStep } from './builder/get';
+import { TweenToStep } from './step-builder/tween-to-step';
+import { get as getBuilderStep } from './step-builder/get';
 import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from '../misc/getNow';
+import { TweenBuilder } from './tween-builder';
 
 export interface TweenEvents<T> {
   completed: (source: Tween<T>) => void;
@@ -91,7 +92,18 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   }
 }
 
+// Need to use namespace instead of static methods on class as we do not expose
+// the class to the outside world, only its type.
 export namespace Tween {
+
+  export function tween<T>(target: T, propDests: DeepPartial<T>, opts: TweenOptions) {
+    return new Tween(target, propDests, opts);
+  }
+
+  export function builder(opts: Partial<TweenOptions> = { }): TweenBuilder {
+    return new TweenBuilder(opts);
+  }
+
   /**
    * Begins the construction of a Tween, using the provided value as its target.
    * @param target The target of the tween (i.e. the value or to tween/interpolate).

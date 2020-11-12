@@ -1,7 +1,7 @@
 import { Tween } from '../../src/tween/tween';
 import { Easings } from '../../src/easing/easings';
 import { clone } from '../../src/clone';
-import { makeTweenFactory} from '../../src/tween/tween-factory';
+import { makeTweenFactory } from '../../src/tween/tween-factory';
 
 const linearOpts = { length: 1000, easing: Easings.linear };
 
@@ -29,7 +29,7 @@ describe(nameof(Tween), () => {
       b: 2,
     };
 
-    const startClone = {...start};
+    const startClone = { ...start };
 
     const end = {
       a: 10,
@@ -56,7 +56,10 @@ describe(nameof(Tween), () => {
         a: 10,
       };
 
-      const tween = Tween.get(start).to(end).with(linearOpts)
+      const tween = Tween.builder()
+        .easing(linearOpts.easing)
+        .length(linearOpts.length)
+        .tween(start, end)
         .on('update', (value) => {
           expect(value).toBe(start);
         })
