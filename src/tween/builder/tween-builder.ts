@@ -1,5 +1,5 @@
 import { Tween } from '../tween';
-import { TweenOpts } from '../opts/opts';
+import { TweenOpts } from '../opts';
 import { TweenFromStep } from './tween-from-step';
 import { TweenToStep } from './tween-to-step';
 import { TweenWithStep } from './tween-with-step';
@@ -27,17 +27,6 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
   }
 
   /**
-   * Complete the construction of the Tween, using the current default options.
-   * @returns The completed Tween.
-   */
-  public withDefaults(): Tween<T> {
-    if (this.target == null || this.destination == null) {
-      throw Error('Missing information required to create Tween.');
-    }
-    return new Tween(this.target, this.destination, Tween.defaults());
-  }
-
-  /**
    * Complete the construction of the Tween, using the provided options.
    * @param options The options/configuration to provide to the Tween.
    * @returns The completed Tween.
@@ -47,18 +36,6 @@ export class TweenBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenW
       throw Error('Missing information required to create Tween.');
     }
     return new Tween(this.target, this.destination, options);
-  }
-
-  /**
-   * Complete the construction of the Tween, using the default options, but with a provided duration/length.
-   * @param length The length or duration of the Tween.
-   * @returns The completed Tween.
-   */
-  public overTime(length: number): Tween<T> {
-    if (this.target == null || this.destination == null) {
-      throw Error('Missing information required to create Tween.');
-    }
-    return new Tween(this.target, this.destination, { length });
   }
 
 }

@@ -1,7 +1,5 @@
 import { EventEmitter } from '@akolos/event-emitter';
-import { Easings } from '../easing';
-import { TweenOpts } from './opts/opts';
-import { DefaultableTweenOpts } from './opts/defaultable-tween-opts';
+import { TweenOpts } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
 import { Timeline } from '../timeline';
@@ -23,23 +21,6 @@ interface TweenEvents<T> {
  */
 export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
 
-  /**
-   * Gets or sets default options for constructing future tweens.
-   * @param [setValue] If not undefined, these properties will be copied into the default options.
-   * @returns defaults The current default options.
-   */
-  public static defaults(setValue?: Partial<DefaultableTweenOpts>): Readonly<Required<DefaultableTweenOpts>> {
-    if (setValue != null) {
-      Object.assign(Tween.defaultOpts, setValue);
-    }
-    return this.defaultOpts;
-  }
-
-  private static defaultOpts: DefaultableTweenOpts = {
-    length: 1000,
-    easing: Easings.easeOutQuad,
-  };
-
   private readonly internalTimer: LazyTimer;
   public readonly tweenTo: DeepReadonly<DeepPartial<T>>;
   private readonly tweening: Tweening<T>;
@@ -54,11 +35,10 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
   public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOpts) {
     super();
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
-    const completeOpts = fillMissingOptions(opts);
     this._target = target;
-    this.tweening = tweening(target, tweenTo, completeOpts.easing);
+    this.tweening = tweening(target, tweenTo, opts.easing);
 
-    this.internalTimer = new LazyTimer(completeOpts.length);
+    this.internalTimer = new LazyTimer(opts.length);
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
       .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
@@ -120,10 +100,4 @@ export namespace Tween {
   export function get<T>(target: T): TweenToStep<T> {
     return getBuilderStep(target);
   }
-}
-
-function fillMissingOptions(opts: TweenOpts): Required<TweenOpts> {
-  const defaults = Object.assign(TweenOpts.clone(Tween.defaults()), { startTime: getNow() });
-  const optsClone = TweenOpts.clone(opts);
-  return Object.assign(defaults, optsClone);
 }

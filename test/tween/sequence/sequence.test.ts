@@ -11,17 +11,16 @@ function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): 
   return times.map((value, index) => ({ startTime: value, timeline: timelines[index] }));
 }
 
-function makeZeroToOneTween(startTime: number) {
+function makeZeroToOneTween() {
   return Tween.get(0).to(1).with({
     easing: Easings.linear,
     length: 1000,
-    startTime,
   });
 };
 
 describe(nameof(Sequence), () => {
   it('correctly plays out a single item', (done) => {
-    const tweenZeroToOne = makeZeroToOneTween(new Date().getTime());
+    const tweenZeroToOne = makeZeroToOneTween();
     const seq = new Sequence(assignStartTimes([0], [tweenZeroToOne]))
       .on('update', () => {
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(seq)));
@@ -33,11 +32,10 @@ describe(nameof(Sequence), () => {
   });
 
   it('correctly plays out multiple sequenced items from start to finish', () => {
-    const now = new Date().getTime();
-    const one = makeZeroToOneTween(now);
-    const two = makeZeroToOneTween(now);
-    const three = makeZeroToOneTween(now);
-    const four = makeZeroToOneTween(now);
+    const one = makeZeroToOneTween();
+    const two = makeZeroToOneTween();
+    const three = makeZeroToOneTween();
+    const four = makeZeroToOneTween();
     const sequence = new Sequence([
       {
         startTime: 0,
@@ -79,11 +77,10 @@ describe(nameof(Sequence), () => {
   });
 
   it('correctly maintains its list of active timelines', () => {
-    const now = new Date().getTime();
-    const one = makeZeroToOneTween(now);
-    const two = makeZeroToOneTween(now);
-    const three = makeZeroToOneTween(now);
-    const four = makeZeroToOneTween(now);
+    const one = makeZeroToOneTween();
+    const two = makeZeroToOneTween();
+    const three = makeZeroToOneTween();
+    const four = makeZeroToOneTween();
     const sequence = new Sequence([
       {
         startTime: 0,
@@ -124,9 +121,8 @@ describe(nameof(Sequence), () => {
   });
 
   it('correctly handles seeking backwards', () => {
-    const now = new Date().getTime();
-    const one = makeZeroToOneTween(now);
-    const two = makeZeroToOneTween(now);
+    const one = makeZeroToOneTween();
+    const two = makeZeroToOneTween();
     const sequence = new Sequence([
       {
         startTime: 0,
@@ -147,10 +143,9 @@ describe(nameof(Sequence), () => {
   });
 
   it('correctly fires timeline activation/deactivation events when playing normally', () => {
-    const now = new Date().getTime();
-    const one = makeZeroToOneTween(now);
-    const two = makeZeroToOneTween(now);
-    const three = makeZeroToOneTween(now);
+    const one = makeZeroToOneTween();
+    const two = makeZeroToOneTween();
+    const three = makeZeroToOneTween();
     const sequence = new Sequence([
       {
         startTime: 0,
@@ -221,10 +216,9 @@ describe(nameof(Sequence), () => {
   });
 
   it('correctly fires timeline activation/deactivation events when seeking backwards or far forwards', () => {
-    const now = new Date().getTime();
-    const one = makeZeroToOneTween(now);
-    const two = makeZeroToOneTween(now);
-    const three = makeZeroToOneTween(now);
+    const one = makeZeroToOneTween();
+    const two = makeZeroToOneTween();
+    const three = makeZeroToOneTween();
     const sequence = new Sequence([
       {
         startTime: 0,

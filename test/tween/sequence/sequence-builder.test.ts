@@ -1,11 +1,18 @@
 import { SequenceBuilder } from '../../../src/sequence/sequence-builder';
 import { Sequenced } from '../../../src/sequence';
 import { Tween } from '../../../src/tween/tween';
+import { TweenOpts } from '../../../src/tween/opts';
+import { Easings } from '../../../src/easing';
+
+const linearOpts: TweenOpts = {
+  easing: Easings.linear,
+  length: 1000,
+}
 
 describe(nameof(SequenceBuilder), () => {
   it('correctly builds a sequence of timelines made with 0-offset appends', () => {
-    const one = Tween.get(0).to(1).overTime(1000);
-    const two = Tween.get(2).to(3).overTime(1000);
+    const one = Tween.get(0).to(1).with(linearOpts)
+    const two = Tween.get(2).to(3).with(linearOpts)
     const sequence = new SequenceBuilder<Tween<number>>()
       .append(one).append(two).build();
     expect(sequence.getItems()).toEqual<Sequenced<Tween<number>>[]>([
@@ -21,9 +28,9 @@ describe(nameof(SequenceBuilder), () => {
   });
 
   it('correctly builds a sequence of timelines with offsetted appends', () => {
-    const one = Tween.get(0).to(1).overTime(1000);
-    const two = Tween.get(2).to(3).overTime(1000);
-    const three = Tween.get(4).to(5).overTime(1000);
+    const one = Tween.get(0).to(1).with(linearOpts)
+    const two = Tween.get(2).to(3).with(linearOpts)
+    const three = Tween.get(4).to(5).with(linearOpts)
     const sequence = new SequenceBuilder<Tween<number>>()
       .append(one, -500).append(two, 500).append(three, -800).build();
     expect(sequence.getItems()).toEqual<Sequenced<Tween<number>>[]>([

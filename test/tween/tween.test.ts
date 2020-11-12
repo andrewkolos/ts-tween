@@ -52,7 +52,7 @@ describe(nameof(Tween), () => {
         a: 10,
       };
 
-      const tween = Tween.get(start).to(end).withDefaults()
+      const tween = Tween.get(start).to(end).with(linearOpts)
         .on('update', (value) => {
           expect(value).toBe(start);
         })
@@ -64,7 +64,7 @@ describe(nameof(Tween), () => {
   it('correctly tweens arrays', (done) => {
     const start = [1, 2, 3];
     const end = [10, 20, 30];
-    const tween = Tween.get(clone(start)).to(end).with({ easing: Easings.linear })
+    const tween = Tween.get(clone(start)).to(end).with({ length: 1000, easing: Easings.linear })
       .on('update', (value) => {
         const progress = tween.localTime / tween.length;
         value.forEach((subVal, index) => {
@@ -95,7 +95,7 @@ describe(nameof(Tween), () => {
       e: [40, 50],
     };
 
-    const tween = Tween.get(start).to(end).withDefaults()
+    const tween = Tween.get(start).to(end).with(linearOpts)
       .on('completed', () => {
         expect(start).toEqual(end);
         expect(start.b).toBe(b);
@@ -113,7 +113,7 @@ describe(nameof(Tween), () => {
       a: 3,
       d: 4,
     } as any)
-      .overTime(1000)).toThrow();
+      .with(linearOpts)).toThrow();
   });
 
   it('updates properly when asked to seek to a specific time', () => {
