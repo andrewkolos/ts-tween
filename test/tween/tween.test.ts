@@ -2,6 +2,7 @@ import { Tween } from '../../src/tween/tween';
 import { Easings } from '../../src/easing/easings';
 import { clone } from '../../src/clone';
 import { makeTweenFactory } from '../../src/tween/tween-factory';
+import { completeTimeline } from '../util';
 
 const linearOpts = { length: 1000, easing: Easings.linear };
 
@@ -10,7 +11,7 @@ describe(nameof(Tween), () => {
     const start = 0;
     const end = 10;
     const tween = Tween.get(start).to(end).with(linearOpts)
-      .on('update', (target: number) => {
+      .on('updated', (target: number) => {
         const progress = tween.localTime / tween.length;
         expect(target).toBeCloseTo(lerp(start, end, progress));
       })
@@ -18,7 +19,7 @@ describe(nameof(Tween), () => {
         done();
       });
 
-    completeTween(tween);
+    completeTimeline(tween);
   });
 
   it('correctly tweens flat objects', (done) => {
@@ -36,13 +37,13 @@ describe(nameof(Tween), () => {
     };
 
     const tween = factory(start, end)
-      .on('update', () => {
+      .on('updated', () => {
         const progress = tween.localTime / tween.length;
         expect(start.a).toBeCloseTo(lerp(startClone.a, end.a, progress));
       })
       .on('completed', () => done());
 
-    completeTween(tween);
+    completeTimeline(tween);
   });
 
   it('correctly preserves the identity of target, which should point object given to tween at construction time',
@@ -60,11 +61,11 @@ describe(nameof(Tween), () => {
         .easing(linearOpts.easing)
         .length(linearOpts.length)
         .tween(start, end)
-        .on('update', (value) => {
+        .on('updated', (value) => {
           expect(value).toBe(start);
         })
         .on('completed', () => done());
-      completeTween(tween);
+      completeTimeline(tween);
       expect(tween.target).toBe(start);
     });
 
@@ -72,7 +73,7 @@ describe(nameof(Tween), () => {
     const start = [1, 2, 3];
     const end = [10, 20, 30];
     const tween = Tween.get(clone(start)).to(end).with({ length: 1000, easing: Easings.linear })
-      .on('update', (value) => {
+      .on('updated', (value) => {
         const progress = tween.localTime / tween.length;
         value.forEach((subVal, index) => {
           const subValExpected = lerp(start[index], end[index], progress);
@@ -81,7 +82,7 @@ describe(nameof(Tween), () => {
       })
       .on('completed', () => done());
 
-    completeTween(tween);
+    completeTimeline(tween);
   });
 
   it('correctly tweens objects with depth = 2', (done) => {
@@ -109,7 +110,7 @@ describe(nameof(Tween), () => {
         done();
       });
 
-    completeTween(tween);
+    completeTimeline(tween);
   });
 
   it('throws an error when the object to tween to contains a property missing in the target object', () => {
@@ -144,16 +145,6 @@ describe(nameof(Tween), () => {
     expect(tween.target).toBeCloseTo(5);
   })
 });
-
-function completeTween<T extends Tween<unknown>>(tween: T, intervalCount: number = 10): T {
-  const startTime = new Date().getTime();
-  for (let i = 1; i <= intervalCount; i++) {
-    const timePerInterval = tween.length / intervalCount;
-    const timeOfIthInterval = timePerInterval * i;
-    tween.update(startTime + timeOfIthInterval);
-  }
-  return tween;
-}
 
 function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * progress;

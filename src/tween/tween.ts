@@ -1,4 +1,4 @@
-import { EventEmitter } from '@akolos/event-emitter';
+import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
@@ -9,18 +9,20 @@ import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
 import { getNow } from '../misc/getNow';
 import { TweenBuilder } from './tween-builder';
+import { SequenceBuilder } from '../sequence';
+import { Composite } from '../composite';
 
 export interface TweenEvents<T> {
   completed: (source: Tween<T>) => void;
   sought: (value: {from: number, to: number}, source: Tween<T>) => void;
-  update: (value: T, source: Tween<T>) => void;
+  updated: (value: T, source: Tween<T>) => void;
 }
 
 /**
  * When given a time, interpolates or "tweens" a value (or values in an object) towards another.
  * @template T The type of the value to be interpolated.
  */
-export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
+export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements Timeline {
 
   private readonly internalTimer: LazyTimer;
   public readonly tweenTo: DeepReadonly<DeepPartial<T>>;
@@ -43,9 +45,9 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
     this.internalTimer
       .on('completed', () => this.emit('completed', this))
       .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
-      .on('update', () => {
+      .on('updated', () => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
-        this.emit('update', this._target, this);
+        this.emit('updated', this._target, this);
       });
   }
 
@@ -67,7 +69,7 @@ export class Tween<T> extends EventEmitter<TweenEvents<T>> implements Timeline {
    * The progress of the interpolation, in milliseconds.
    */
   public get localTime(): number {
-    return this.internalTimer.localTime;
+    return this.internalTimer.time;
   }
 
   /**
@@ -111,5 +113,13 @@ export namespace Tween {
    */
   export function get<T>(target: T): TweenToStep<T> {
     return getBuilderStep(target);
+  }
+
+  export function sequence<T extends Timeline>(): SequenceBuilder<T> {
+    return new SequenceBuilder();
+  }
+
+  export function composite<T extends Timeline>(timelines: T[]): Composite<T> {
+    return new Composite(timelines);
   }
 }

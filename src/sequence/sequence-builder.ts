@@ -5,7 +5,7 @@ import { Sequence } from './sequence';
 export class SequenceBuilder<T extends Timeline> {
 
   private latestEndTime = 0;
-  private readonly items: Sequenced<T>[] = [];
+  private readonly items: Sequenced<Timeline>[] = [];
 
   /**
    * Adds a new timeline and makes it the last of the sequence.
@@ -16,7 +16,7 @@ export class SequenceBuilder<T extends Timeline> {
    * to start and end at t=0. Also, the new timeline will be set to start at t=0 if
    * t_endOfPrevious + timeOffset < 0.
    */
-  public append(timeline: T, timeOffset = 0): this {
+  public append<Tn extends Timeline>(timeline: Tn, timeOffset = 0): SequenceBuilder<T | Tn> {
     const startTime = Math.max(this.latestEndTime + timeOffset, 0);
     this.items.push({
       startTime: Math.max(startTime, 0),
@@ -26,7 +26,7 @@ export class SequenceBuilder<T extends Timeline> {
     return this;
   }
 
-  public build(): Sequence<T> {
-    return new Sequence(this.items);
+  public start(): Sequence<T> {
+    return new Sequence(this.items as Sequenced<T>[]);
   }
 }

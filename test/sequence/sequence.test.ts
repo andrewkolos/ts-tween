@@ -1,7 +1,8 @@
-import { Sequence, Sequenced } from '../../../src/sequence';
-import { Tween } from '../../../src/tween/tween';
-import { Easings } from '../../../src/easing/easings';
-import { Timeline } from '../../../src/timeline';
+import { Sequence } from '../../src/sequence/sequence';
+import { Sequenced } from '../../src/sequence';
+import { Tween } from '../../src/tween/tween';
+import { Timeline } from '../../src/timeline';
+import { makeZeroToOneTween } from '../util';
 
 function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): Sequenced<T>[] {
   if (times.length !== timelines.length) {
@@ -11,18 +12,11 @@ function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): 
   return times.map((value, index) => ({ startTime: value, timeline: timelines[index] }));
 }
 
-function makeZeroToOneTween() {
-  return Tween.get(0).to(1).with({
-    easing: Easings.linear,
-    length: 1000,
-  });
-};
-
 describe(nameof(Sequence), () => {
   it('correctly plays out a single item', (done) => {
     const tweenZeroToOne = makeZeroToOneTween();
     const seq = new Sequence(assignStartTimes([0], [tweenZeroToOne]))
-      .on('update', () => {
+      .on('updated', () => {
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(seq)));
         expect(tweenZeroToOne.target).toBeCloseTo(lerp(0, 1, progressOf(tweenZeroToOne)));
       })

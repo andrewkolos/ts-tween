@@ -20,7 +20,7 @@
   "dependencies": {
     "@akolos/clone-dumb-object": "0.0.1",
     "@akolos/custom-error": "0.0.1",
-    "@akolos/event-emitter": "^1.1.5",
+    "@akolos/event-emitter": "^1.2.1",
     "@tweenjs/tween.js": "^18.6.0",
     "@types/dedent": "^0.7.0",
     "@types/read": "0.0.28",

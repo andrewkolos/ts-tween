@@ -1,8 +1,8 @@
-import { SequenceBuilder } from '../../../src/sequence/sequence-builder';
-import { Sequenced } from '../../../src/sequence';
-import { Tween } from '../../../src/tween/tween';
-import { TweenOptions } from '../../../src/tween/opts';
-import { Easings } from '../../../src/easing';
+import { SequenceBuilder } from '../../src/sequence/sequence-builder';
+import { Sequenced } from '../../src/sequence';
+import { Tween } from '../../src/tween/tween';
+import { TweenOptions } from '../../src/tween/opts';
+import { Easings } from '../../src/easing';
 
 const linearOpts: TweenOptions = {
   easing: Easings.linear,
@@ -14,7 +14,7 @@ describe(nameof(SequenceBuilder), () => {
     const one = Tween.get(0).to(1).with(linearOpts)
     const two = Tween.get(2).to(3).with(linearOpts)
     const sequence = new SequenceBuilder<Tween<number>>()
-      .append(one).append(two).build();
+      .append(one).append(two).start();
     expect(sequence.getItems()).toEqual<Sequenced<Tween<number>>[]>([
       {
         startTime: 0,
@@ -32,7 +32,7 @@ describe(nameof(SequenceBuilder), () => {
     const two = Tween.get(2).to(3).with(linearOpts)
     const three = Tween.get(4).to(5).with(linearOpts)
     const sequence = new SequenceBuilder<Tween<number>>()
-      .append(one, -500).append(two, 500).append(three, -800).build();
+      .append(one, -500).append(two, 500).append(three, -800).start();
     expect(sequence.getItems()).toEqual<Sequenced<Tween<number>>[]>([
       {
         startTime: 0,
