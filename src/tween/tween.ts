@@ -98,10 +98,22 @@ export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements
 // the class to the outside world, only its type.
 export namespace Tween {
 
+  /**
+   * Creates a tween.
+   * @param target The value/object to tween.
+   * @param propDests If the target is an object, an object containing the properties to tween
+   *  and the values they should be tweened to.
+   * @param opts The options for this tween, including the easing function to use and the
+   *  length of the tween.
+   */
   export function tween<T>(target: T, propDests: DeepPartial<T>, opts: TweenOptions) {
     return new Tween(target, propDests, opts);
   }
 
+  /**
+   * Creates a builder for a tween, providing an alternate syntax for creating tweens.
+   * @param opts The options to preload the builder with, if any.
+   */
   export function builder(opts: Partial<TweenOptions> = { }): TweenBuilder {
     return new TweenBuilder(opts);
   }
@@ -115,10 +127,19 @@ export namespace Tween {
     return getBuilderStep(target);
   }
 
+  /**
+   * Creates a sequence of tweens (or more generally, timelines) that can be treated
+   * and controlled as a single timeline.
+   */
   export function sequence<T extends Timeline>(): SequenceBuilder<T> {
     return new SequenceBuilder();
   }
 
+  /**
+   * Creates a composite of timelines. Effectively groups timelines together so they can be
+   * controlled together as if they were a single timeline.
+   * @param timelines The timelines to place into this composite.
+   */
   export function composite<T extends Timeline>(timelines: T[]): Composite<T> {
     return new Composite(timelines);
   }
