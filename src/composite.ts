@@ -1,12 +1,12 @@
 import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { LazyTimer } from './lazy-timer';
-import { Timeline } from './timeline';
+import { Timeline, TimelineEvents } from './timeline';
 
-export interface CompositeEvents<T extends Timeline> {
-  completed: (source: Composite<T>) => void;
-  sought: (value: { from: number, to: number }, source: Composite<T>) => void;
-  timelineCompleted: (timeline: T, source: Composite<T>) => void;
-  updated: (dt: number, source: Composite<T>) => void;
+export interface CompositeEvents<T extends Timeline> extends TimelineEvents<Composite<T>> {
+  completed: [event: {}, source: Composite<T>];
+  sought: [event: { from: number, to: number }, source: Composite<T>];
+  timelineCompleted: [event: { timeline: T }, source: Composite<T>];
+  updated: [event: { dt: number }, source: Composite<T>];
 }
 
 export class Composite<T extends Timeline> extends InheritableEventEmitter<CompositeEvents<T>> implements Timeline {
@@ -26,13 +26,12 @@ export class Composite<T extends Timeline> extends InheritableEventEmitter<Compo
     super();
     this.timelines = timelines;
     this.timer = new LazyTimer(longestTimelineLength());
-
     this.timer
-      .on('completed', () => this.emit('completed', this))
+      .on('completed', () => this.emit('completed', {}, this))
       .on('sought', ({ from, to }: { from: number, to: number }) => this.emit('sought', { from, to }, this))
       .on('updated', (dt: number) => {
         this.updateTimelines();
-        this.emit('updated', dt, this);
+        this.emit('updated', { dt }, this);
       });
 
     function longestTimelineLength() {

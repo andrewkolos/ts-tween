@@ -11,9 +11,9 @@ describe(nameof(Tween), () => {
     const start = 0;
     const end = 10;
     const tween = Tween.get(start).to(end).with(linearOpts)
-      .on('updated', (target: number) => {
+      .on('updated', (event) => {
         const progress = tween.localTime / tween.length;
-        expect(target).toBeCloseTo(lerp(start, end, progress));
+        expect(event.value).toBeCloseTo(lerp(start, end, progress));
       })
       .on('completed', () => {
         done();
@@ -61,8 +61,8 @@ describe(nameof(Tween), () => {
         .easing(linearOpts.easing)
         .length(linearOpts.length)
         .tween(start, end)
-        .on('updated', (value) => {
-          expect(value).toBe(start);
+        .on('updated', (event) => {
+          expect(event.value).toBe(start);
         })
         .on('completed', () => done());
       completeTimeline(tween);
@@ -73,9 +73,9 @@ describe(nameof(Tween), () => {
     const start = [1, 2, 3];
     const end = [10, 20, 30];
     const tween = Tween.get(clone(start)).to(end).with({ length: 1000, easing: Easings.linear })
-      .on('updated', (value) => {
+      .on('updated', (event) => {
         const progress = tween.localTime / tween.length;
-        value.forEach((subVal, index) => {
+        event.value.forEach((subVal, index) => {
           const subValExpected = lerp(start[index], end[index], progress);
           expect(subVal).toBeCloseTo(subValExpected);
         });

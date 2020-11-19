@@ -186,8 +186,8 @@ describe(nameof(Sequence), () => {
     function addActiveToggleListenerFor(tween: Tween<number> | null,
       eventName: 'timelineActivated' | 'timelineDeactivated') {
       let alreadyRemovedCb = false;
-      const cb = jest.fn();
-      sequence.on(eventName, cb);
+      const cb = jest.fn() as () => void;
+      sequence.on(eventName, cb as any);
       const test = {
         test: () => {
           expect(cb).toBeCalledTimes(tween == null ? 0 : 1);
@@ -257,7 +257,7 @@ describe(nameof(Sequence), () => {
       let matchCounter = 0;
       let counter = 0;
       const cb = jest.fn((eventTween: Tween<number>) => { if (tween === eventTween) matchCounter++ });
-      sequence.on(eventName, cb);
+      sequence.on(eventName, cb as any);
       return () => {
         expect(matchCounter).toBe(++counter);
       }

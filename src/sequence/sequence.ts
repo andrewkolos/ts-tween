@@ -1,15 +1,15 @@
-import { Timeline } from '../timeline';
+import { Timeline, TimelineEvents } from '../timeline';
 import { Sequenced } from './sequenced-timeline';
 import { LazyTimer } from './../lazy-timer';
 import { getNow } from '../misc/getNow';
 import { InheritableEventEmitter } from '@akolos/event-emitter';
 
-export interface SequenceEvents<T extends Timeline> {
-  completed: (source: Sequence<T>) => void;
-  sought: (value: { from: number, to: number }, source: Sequence<T>) => void;
-  timelineActivated: (timeline: T, source: Sequence<T>) => void;
-  timelineDeactivated: (timeline: T, source: Sequence<T>) => void;
-  updated: (dt: number, source: Sequence<T>) => void;
+export interface SequenceEvents<T extends Timeline> extends TimelineEvents<Sequence<T>> {
+  completed: [event: {}, source: Sequence<T>];
+  sought: [event: { from: number, to: number }, source: Sequence<T>];
+  timelineActivated: [timeline: T, source: Sequence<T>];
+  timelineDeactivated: [timeline: T, source: Sequence<T>];
+  updated: [event: {dt: number}, source: Sequence<T>];
 }
 
 export class Sequence<T extends Timeline> extends InheritableEventEmitter<SequenceEvents<T>> implements Timeline {
@@ -58,11 +58,11 @@ export class Sequence<T extends Timeline> extends InheritableEventEmitter<Sequen
     }, 0);
     this.internalTimer = new LazyTimer(latestEndingTime);
     this.internalTimer
-      .on('completed', () => this.emit('completed', this))
+      .on('completed', () => this.emit('completed', {}, this))
       .on('sought', ({ from, to }: {from: number, to: number}) => this.emit('sought', { from, to }, this))
       .on('updated', (dt: number) => {
         this.updateTimelines();
-        this.emit('updated', dt, this);
+        this.emit('updated', { dt }, this);
       });
   }
 

@@ -2,7 +2,15 @@
  * Represents anything that starts at some time, progresses, and ends at another time.
  */
 
-export interface Timeline {
+import { EventSource } from '@akolos/event-emitter';
+
+export interface TimelineEvents<Self> {
+  completed: [event: {}, source: Self];
+  sought: [event: { from: number, to: number }, source: Self];
+  updated: [event: {dt: number}, source: Self];
+}
+
+export interface Timeline extends EventSource<TimelineEvents<Timeline>> {
   /**
    * Advance the timeline to a time with respect to its origin, or start.
    * @param time The time to seek to, in the range [0, `length`].

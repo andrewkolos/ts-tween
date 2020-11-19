@@ -3,9 +3,9 @@ import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { getNow } from './misc/getNow';
 
 export interface LazyTimerEvents {
-  completed: (source: LazyTimer) => void;
-  sought: (value: { from: number, to: number }, source: LazyTimer) => void;
-  updated: (dt: number, source: LazyTimer) => void;
+  completed: [source: LazyTimer];
+  sought: [value: { from: number, to: number }, source: LazyTimer];
+  updated: [dt: number, source: LazyTimer];
 }
 
 export interface LazyTimerOpts extends LazyStopwatchOpts { }
@@ -23,7 +23,7 @@ export class LazyTimer extends InheritableEventEmitter<LazyTimerEvents> {
     this.stopwatch = new LazyStopwatch(opts);
     this.stopwatch
       .on('sought', (value) => this.emit('sought', value, this))
-      .on('updated', (dt) => {
+      .on('updated', (dt: number) => {
         this.emit('updated', dt, this);
         if (this.time >= this.length) {
           this.emit('completed', this);

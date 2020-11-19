@@ -2,7 +2,7 @@ import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
-import { Timeline } from '../timeline';
+import { Timeline, TimelineEvents } from '../timeline';
 import { TweenToStep } from './step-builder/tween-to-step';
 import { get as getBuilderStep } from './step-builder/get';
 import { LazyTimer } from '../lazy-timer';
@@ -12,10 +12,10 @@ import { TweenBuilder } from './tween-builder';
 import { SequenceBuilder } from '../sequence';
 import { Composite } from '../composite';
 
-export interface TweenEvents<T> {
-  completed: (source: Tween<T>) => void;
-  sought: (value: {from: number, to: number}, source: Tween<T>) => void;
-  updated: (value: T, source: Tween<T>) => void;
+export interface TweenEvents<T> extends TimelineEvents<Tween<T>> {
+  completed: [event: {}, source: Tween<T>];
+  sought: [event: {from: number, to: number}, source: Tween<T>];
+  updated: [event: {dt: number, value: T}, source: Tween<T>];
 }
 
 /**
@@ -43,11 +43,11 @@ export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements
 
     this.internalTimer = new LazyTimer(opts.length);
     this.internalTimer
-      .on('completed', () => this.emit('completed', this))
+      .on('completed', () => this.emit('completed', {}, this))
       .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
-      .on('updated', () => {
+      .on('updated', (dt) => {
         this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
-        this.emit('updated', this._target, this);
+        this.emit('updated', {dt, value: this._target }, this);
       });
   }
 

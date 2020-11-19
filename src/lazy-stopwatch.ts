@@ -2,8 +2,8 @@ import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { getNow } from './misc/getNow';
 
 export interface LazyStopWatchEvents {
-  sought: (value: { from: number, to: number }, source: LazyStopwatch) => void;
-  updated: (dt: number, source: LazyStopwatch) => void;
+  sought: [value: { from: number, to: number }, source: LazyStopwatch];
+  updated: [dt: number, source: LazyStopwatch];
 }
 
 export interface LazyStopwatchOpts {
