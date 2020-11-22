@@ -16,11 +16,9 @@ export function makeZeroToOneTween() {
 };
 
 export function completeTimeline<T extends Timeline>(timeline: T, intervalCount: number = 10): T {
-  const startTime = new Date().getTime();
   for (let i = 1; i <= intervalCount; i++) {
     const timePerInterval = timeline.length / intervalCount;
-    const timeOfIthInterval = timePerInterval * i;
-    timeline.update(startTime + timeOfIthInterval);
+    timeline.__update(timePerInterval);
   }
   return timeline;
 }

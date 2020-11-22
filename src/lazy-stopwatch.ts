@@ -1,8 +1,10 @@
 import { InheritableEventEmitter } from '@akolos/event-emitter';
 import { getNow } from './misc/getNow';
 
-export interface LazyStopWatchEvents {
-  sought: [value: { from: number, to: number }, source: LazyStopwatch];
+export interface LazyStopwatchEvents {
+  started: [source: LazyStopwatch];
+  stopped: [source: LazyStopwatch];
+  sought: [from: number, source: LazyStopwatch];
   updated: [dt: number, source: LazyStopwatch];
 }
 
@@ -10,16 +12,21 @@ export interface LazyStopwatchOpts {
   startTime?: number;
 }
 
-export class LazyStopwatch extends InheritableEventEmitter<LazyStopWatchEvents> {
+export class LazyStopwatch extends InheritableEventEmitter<LazyStopwatchEvents> {
 
   public readonly startTime: number;
 
   protected _time: number;
+  private _stopped = true;
 
   private timeOfLastUpdate: number;
 
   public get time() {
     return this._time;
+  }
+
+  public get stopped() {
+    return this._stopped;
   }
 
   public constructor(opts: LazyStopwatchOpts = {}) {
@@ -37,11 +44,13 @@ export class LazyStopwatch extends InheritableEventEmitter<LazyStopWatchEvents> 
     this._time = time;
     this.timeOfLastUpdate = now;
     this.update(now)
-    this.emit('sought', {from: oldTime, to: this._time}, this);
+    this.emit('sought', oldTime, this);
     return this;
   }
 
-  public update(now = getNow()): this {
+  public update(now = getNow()): number {
+    if (this.stopped) return 0;
+
     const dt = now - timeOfLastUpdate(this);
     this._time = Math.max(this._time + dt, 0);
 
@@ -56,6 +65,19 @@ export class LazyStopwatch extends InheritableEventEmitter<LazyStopWatchEvents> 
       return self.timeOfLastUpdate;
     }
 
+    return dt;
+  }
+
+  public start(): this {
+    this._stopped = false;
+    this.timeOfLastUpdate = getNow();
+    this.emit('started', this);
+    return this;
+  }
+
+  public stop(): this {
+    this._stopped = true;
+    this.emit('stopped', this);
     return this;
   }
 

@@ -4,25 +4,37 @@
 
 import { EventSource } from '@akolos/event-emitter';
 
-export interface TimelineEvents<Self> {
+export interface TimelineEvents<Self = Timeline> {
   completed: [event: {}, source: Self];
-  sought: [event: { from: number, to: number }, source: Self];
-  updated: [event: {dt: number}, source: Self];
+  sought: [event: { from: number }, source: Self];
+  updated: [event: { dt: number }, source: Self];
+  started: [event: {}, source: Self];
+  stopped: [event: {}, source: Self];
 }
 
 export interface Timeline extends EventSource<TimelineEvents<Timeline>> {
   /**
    * Advance the timeline to a time with respect to its origin, or start.
+   * Emits the `sought` and `updated` events.
    * @param time The time to seek to, in the range [0, `length`].
    */
   seek(time: number): void;
 
   /**
-   * Advances the timeline to the current time, or, if another time is provided,
-   * to that time.
-   * @param [now] The time (since unix epoch) to seek to.
+   * Stops a tween before it finishes. Emits the 'stopped` event.
    */
-  update(currentTime?: number): void;
+  stop(): void;
+
+  /**
+   * Causes the tween to instantly reach its end. Equivalent to
+   * `seek(length)`.
+   */
+  complete(): void;
+
+  /**
+   * @internal
+   */
+  __update(dt: number): void;
 
   /**
    * The length of its timeline i.e. its total duration.

@@ -1,50 +1,43 @@
-import { InheritableEventEmitter } from '@akolos/event-emitter';
-import { LazyTimer } from './lazy-timer';
+import { EventEmitter } from '@akolos/event-emitter';
+import { AbstractCompositeTimeline } from './abstract-composite-timeline';
 import { Timeline, TimelineEvents } from './timeline';
 
 export interface GroupEvents<T extends Timeline> extends TimelineEvents<Group<T>> {
   completed: [event: {}, source: Group<T>];
-  sought: [event: { from: number, to: number }, source: Group<T>];
-  timelineCompleted: [event: { timeline: T }, source: Group<T>];
+  sought: [event: { from: number }, source: Group<T>];
   updated: [event: { dt: number }, source: Group<T>];
 }
 
-export class Group<T extends Timeline> extends InheritableEventEmitter<GroupEvents<T>> implements Timeline {
+export class Group<T extends Timeline> extends AbstractCompositeTimeline<T> implements Timeline {
 
-  private readonly timer: LazyTimer;
+  private readonly eventEmitter = new EventEmitter<GroupEvents<T>>();
+  public readonly on = this.eventEmitter.makeDelegate('on', this);
+  public readonly off = this.eventEmitter.makeDelegate('off', this);
+  protected readonly emit = this.eventEmitter.makeDelegate('emit', this);
 
-  public get length(): number {
-    return this.timer.length;
-  }
-
-  public get localTime(): number {
-    return this.timer.time;
-  }
-
-  private readonly timelines: ReadonlyArray<T>;
   public constructor(timelines: T[]) {
-    super();
-    this.timelines = timelines;
-    this.timer = new LazyTimer(longestTimelineLength());
-    this.timer
-      .on('completed', () => this.emit('completed', {}, this))
-      .on('sought', ({ from, to }: { from: number, to: number }) => this.emit('sought', { from, to }, this))
-      .on('updated', (dt: number) => {
-        this.updateTimelines();
-        this.emit('updated', { dt }, this);
-      });
-
+    super(timelines, longestTimelineLength());
     function longestTimelineLength() {
       return timelines.reduce((longestLength: number, t: T) => Math.max(longestLength, t.length), 0);
     }
   }
 
-  public seek(time: number): void {
-    this.timer.seek(time);
+  public _update(dt: number): void {
+    this.updateTimelines();
+    this.emit('updated', { dt }, this);
   }
 
-  public update(currentTime?: number): void {
-    this.timer.update(currentTime);
+  protected _completed() {
+    this.emit('completed', {}, this);
+  }
+  protected _start(): void {
+    this.emit('started', {}, this);
+  }
+  protected _stop(): void {
+    this.emit('stopped', {}, this);
+  }
+  protected _seek(from: number): void {
+    this.emit('sought', { from }, this);
   }
 
   private updateTimelines() {

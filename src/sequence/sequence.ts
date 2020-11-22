@@ -1,36 +1,25 @@
 import { Timeline, TimelineEvents } from '../timeline';
 import { Sequenced } from './sequenced-timeline';
-import { LazyTimer } from './../lazy-timer';
-import { getNow } from '../misc/getNow';
-import { InheritableEventEmitter } from '@akolos/event-emitter';
+import { AbstractCompositeTimeline } from '../abstract-composite-timeline';
+import { EventEmitter } from '@akolos/event-emitter';
 
 export interface SequenceEvents<T extends Timeline> extends TimelineEvents<Sequence<T>> {
   completed: [event: {}, source: Sequence<T>];
-  sought: [event: { from: number, to: number }, source: Sequence<T>];
+  sought: [event: { from: number }, source: Sequence<T>];
   timelineActivated: [timeline: T, source: Sequence<T>];
   timelineDeactivated: [timeline: T, source: Sequence<T>];
-  updated: [event: {dt: number}, source: Sequence<T>];
+  updated: [event: { dt: number }, source: Sequence<T>];
 }
 
-export class Sequence<T extends Timeline> extends InheritableEventEmitter<SequenceEvents<T>> implements Timeline {
-  private internalTimer: LazyTimer;
+export class Sequence<T extends Timeline> extends AbstractCompositeTimeline<T> implements Timeline {
+
+  private readonly eventEmitter = new EventEmitter<SequenceEvents<T>>();
+  public readonly on = this.eventEmitter.makeDelegate('on', this);
+  public readonly off = this.eventEmitter.makeDelegate('off', this);
+  protected readonly emit = this.eventEmitter.makeDelegate('emit', this);
+
   private readonly _items: ReadonlySet<Sequenced<T>>;
   private readonly _activeTimelines = new Set<T>();
-
-  /**
-   * The progress of the sequence, in milliseconds.
-   */
-  public get localTime(): number {
-    return this.internalTimer.time;
-  }
-
-  /**
-   * The total length of the sequence, from the start time of the first item, to the end of time of the
-   * last item.
-   */
-  public get length(): number {
-    return this.internalTimer.length;
-  }
 
   /**
    * The set of all timelines that were updated during this sequence's most recent update.
@@ -51,39 +40,32 @@ export class Sequence<T extends Timeline> extends InheritableEventEmitter<Sequen
    * @param sequenceItems The timelines to include in this sequence, with each having a start time.
    */
   public constructor(sequenceItems: Sequenced<T>[]) {
-    super();
+    super(sequenceItems.map(si => si.timeline), latestEndingTime());
     this._items = new Set(sequenceItems.sort((a, b) => a.startTime - b.startTime));
-    const latestEndingTime = sequenceItems.reduce((latestSoFar, currentItem) => {
-      return Math.max(latestSoFar, currentItem.startTime + currentItem.timeline.length);
-    }, 0);
-    this.internalTimer = new LazyTimer(latestEndingTime);
-    this.internalTimer
-      .on('completed', () => this.emit('completed', {}, this))
-      .on('sought', ({ from, to }: {from: number, to: number}) => this.emit('sought', { from, to }, this))
-      .on('updated', (dt: number) => {
-        this.updateTimelines();
-        this.emit('updated', { dt }, this);
-      });
+
+    function latestEndingTime() {
+      return sequenceItems.reduce((latestSoFar, currentItem) => {
+        return Math.max(latestSoFar, currentItem.startTime + currentItem.timeline.length);
+      }, 0);
+    }
   }
 
-  /**
-   * Updates sequence to the current time, or another time, if provided.
-   * @param [currentTime] The time to use as the current time.
-   * @returns This sequence, for method chaining.
-   */
-  public update(currentTime = getNow()): this {
-    this.internalTimer.seek(currentTime);
-    return this;
+  public _update(dt: number): void {
+    this.updateTimelines();
+    this.emit('updated', { dt }, this);
   }
 
-  /**
-   * Moves the sequence to the specified time.
-   * @param time The time, in milliseconds since the start, to seek to, up to the length of this sequence.
-   * @returns This sequence, for method chaining.
-   */
-  public seek(time: number): this {
-    this.internalTimer.seek(time);
-    return this;
+  protected _completed() {
+    this.emit('completed', {}, this);
+  }
+  protected _start(): void {
+    this.emit('started', {}, this);
+  }
+  protected _stop(): void {
+    this.emit('stopped', {}, this);
+  }
+  protected _seek(from: number): void {
+    this.emit('sought', { from }, this);
   }
 
   private updateTimelines() {
@@ -132,6 +114,4 @@ export class Sequence<T extends Timeline> extends InheritableEventEmitter<Sequen
       return self._activeTimelines.has(timeline);
     }
   }
-
 }
-

@@ -1,30 +1,34 @@
-import { InheritableEventEmitter } from '@akolos/event-emitter';
+import { EventEmitter } from '@akolos/event-emitter';
 import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
 import { Timeline, TimelineEvents } from '../timeline';
 import { TweenToStep } from './step-builder/tween-to-step';
 import { get as getBuilderStep } from './step-builder/get';
-import { LazyTimer } from '../lazy-timer';
 import { DeepReadonly } from '../misc/deep-readonly';
-import { getNow } from '../misc/getNow';
 import { TweenBuilder } from './tween-builder';
 import { SequenceBuilder } from '../sequence';
-import { Composite } from '../composite';
+import { Group } from '../group';
+import { AbstractTimeline } from '../abstract-timeline';
 
 export interface TweenEvents<T> extends TimelineEvents<Tween<T>> {
   completed: [event: {}, source: Tween<T>];
-  sought: [event: {from: number, to: number}, source: Tween<T>];
-  updated: [event: {dt: number, value: T}, source: Tween<T>];
+  sought: [event: { from: number }, source: Tween<T>];
+  updated: [event: { dt: number, value: T }, source: Tween<T>];
+
 }
 
 /**
  * When given a time, interpolates or "tweens" a value (or values in an object) towards another.
  * @template T The type of the value to be interpolated.
  */
-export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements Timeline {
+export class Tween<T> extends AbstractTimeline implements Timeline {
 
-  private readonly internalTimer: LazyTimer;
+  private readonly eventEmitter = new EventEmitter<TweenEvents<T>>();
+  public readonly on = this.eventEmitter.makeDelegate('on', this);
+  public readonly off = this.eventEmitter.makeDelegate('off', this);
+  protected readonly emit = this.eventEmitter.makeDelegate('emit', this);
+
   public readonly tweenTo: DeepReadonly<DeepPartial<T>>;
   private readonly tweening: Tweening<T>;
   private _target: T;
@@ -36,19 +40,10 @@ export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements
    * @param opts Describes how the target will be tweened.
    */
   public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
-    super();
+    super(opts.length);
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     this._target = target;
     this.tweening = tweening(target, tweenTo, opts.easing);
-
-    this.internalTimer = new LazyTimer(opts.length);
-    this.internalTimer
-      .on('completed', () => this.emit('completed', {}, this))
-      .on('sought', ({from, to}: {from: number, to: number}) => this.emit('sought', {from, to}, this))
-      .on('updated', (dt) => {
-        this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
-        this.emit('updated', {dt, value: this._target }, this);
-      });
   }
 
   /**
@@ -58,40 +53,27 @@ export class Tween<T> extends InheritableEventEmitter<TweenEvents<T>> implements
     return this._target;
   }
 
-  /**
-   * The length or duration of the interpolation.
-   */
-  public get length(): number {
-    return this.internalTimer.length;
+  protected _update(dt: number) {
+    this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
+    this.emit('updated', { dt, value: this._target }, this);
   }
 
-  /**
-   * The progress of the interpolation, in milliseconds.
-   */
-  public get localTime(): number {
-    return this.internalTimer.time;
+  protected _completed() {
+    this.emit('completed', {}, this);
   }
 
-  /**
-   * Sets the local time (i.e. the progress of the interpolation, in milliseconds),
-   * and then updates the value of the target.
-   * @param time The local time (i.e. time from the start) to seek to, in the range [0, this.length].
-   * @returns The tween, for method chaining.
-   */
-  public seek(time: number): this {
-    this.internalTimer.seek(time);
-    return this;
+  protected _start(): void {
+    this.emit('started', {}, this);
   }
 
-  /**
-   * Updates the tween to the current time, or, if another time is provided,
-   * to that time.
-   * @param [now] The time (since unix epoch) to seek to.
-   */
-  public update(now = getNow()): this {
-    this.internalTimer.update(now);
-    return this;
+  protected _stop(): void {
+    this.emit('stopped', {}, this);
   }
+
+  protected _seek(from: number): void {
+    this.emit('sought', { from }, this);
+  }
+
 }
 
 // Need to use namespace instead of static methods on class as we do not expose
@@ -114,7 +96,7 @@ export namespace Tween {
    * Creates a builder for a tween, providing an alternate syntax for creating tweens.
    * @param opts The options to preload the builder with, if any.
    */
-  export function builder(opts: Partial<TweenOptions> = { }): TweenBuilder {
+  export function builder(opts: Partial<TweenOptions> = {}): TweenBuilder {
     return new TweenBuilder(opts);
   }
 
@@ -140,7 +122,7 @@ export namespace Tween {
    * controlled together as if they were a single timeline.
    * @param timelines The timelines to place into this composite.
    */
-  export function composite<T extends Timeline>(timelines: T[]): Composite<T> {
-    return new Composite(timelines);
+  export function group<T extends Timeline>(timelines: T[]): Group<T> {
+    return new Group(timelines);
   }
 }

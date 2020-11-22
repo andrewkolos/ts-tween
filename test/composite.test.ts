@@ -1,11 +1,11 @@
-import { Composite } from '../src/composite';
+import { Group } from '../src/group';
 import { Tween } from '../src/tween/tween';
 import { completeTimeline, lerp, makeZeroToOneTween, progressOf } from './util';
 
-describe(nameof(Composite), () => {
+describe(nameof(Group), () => {
   it('Updates all items correctly when running start to finish.', (done) => {
     const items = new Array(3).map(() => makeZeroToOneTween());
-    const comp = Tween.composite(items);
+    const comp = Tween.group(items);
     comp.on('updated', () => {
       items.forEach(i => expect(i.target).toBeCloseTo(lerp(0, 1, progressOf(i))));
     });
@@ -24,7 +24,7 @@ describe(nameof(Composite), () => {
     const completedListener = jest.fn();
     const updatedListener = jest.fn();
     const tween = makeZeroToOneTween();
-    const comp = Tween.composite([tween]);
+    const comp = Tween.group([tween]);
     comp.on('sought', soughtListener)
       .on('updated', updatedListener)
       .on('completed', completedListener);
