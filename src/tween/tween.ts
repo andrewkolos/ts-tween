@@ -2,7 +2,7 @@ import { EventEmitter } from '@akolos/event-emitter';
 import { TweenOptions } from './opts';
 import { Tweening, tweening } from './tweening';
 import { DeepPartial } from '../deep-partial';
-import { Timeline, TimelineEvents } from '../timeline/timeline';
+import { Timeline } from '../timeline/timeline';
 import { TweenToStep } from './step-builder/tween-to-step';
 import { get as getBuilderStep } from './step-builder/get';
 import { DeepReadonly } from '../misc/deep-readonly';
@@ -10,6 +10,7 @@ import { TweenBuilder } from './tween-builder';
 import { SequenceBuilder } from '../sequence';
 import { Group } from '../group';
 import { AbstractTimeline } from '../timeline/abstract-timeline';
+import { TimelineEvents } from '../timeline';
 
 export interface TweenEvents<T> extends TimelineEvents<Tween<T>> {
   completed: [event: {}, source: Tween<T>];

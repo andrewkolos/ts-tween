@@ -1,6 +1,7 @@
 import { EventEmitter } from '@akolos/event-emitter';
+import { TimelineEvents } from './timeline';
 import { AbstractCompositeTimeline } from './timeline/abstract-composite-timeline';
-import { Timeline, TimelineEvents } from './timeline/timeline';
+import { Timeline } from './timeline/timeline';
 
 export interface GroupEvents<T extends Timeline> extends TimelineEvents<Group<T>> {
   completed: [event: {}, source: Group<T>];

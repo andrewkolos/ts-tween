@@ -1,8 +1,9 @@
-import { EventSource, InheritableEventEmitter } from '@akolos/event-emitter';
-import { Timeline, TimelineEvents } from './timeline';
+import { InheritableEventEmitter } from '@akolos/event-emitter';
+import { TimelineEvents } from "./timeline-events";
 import { TimelineRunner } from '../timeline-runner/timeline-runner';
+import { Timeline } from './timeline';
 
-export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineEvents<AbstractTimeline>> implements Timeline, EventSource<TimelineEvents<AbstractTimeline>> {
+export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineEvents<AbstractTimeline>> implements Timeline {
 
   private readonly _length: number;
   private _localTime: number;

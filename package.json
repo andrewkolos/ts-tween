@@ -1,6 +1,6 @@
 {
   "name": "@akolos/ts-tween",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "build/cjs/index.js",
   "module": "build/index.js",
   "types": "build/index.d.ts",
