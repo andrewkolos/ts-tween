@@ -1,6 +1,6 @@
-import { Timeline, TimelineEvents } from '../timeline';
+import { Timeline, TimelineEvents } from '../timeline/timeline';
 import { Sequenced } from './sequenced-timeline';
-import { AbstractCompositeTimeline } from '../abstract-composite-timeline';
+import { AbstractCompositeTimeline } from '../timeline/abstract-composite-timeline';
 import { EventEmitter } from '@akolos/event-emitter';
 
 export interface SequenceEvents<T extends Timeline> extends TimelineEvents<Sequence<T>> {

@@ -1,8 +1,8 @@
 import dedent from 'dedent';
 import { Easing } from './../easing';
-import { DeepPartial } from './../deep-partial';
-import { cloneCommonProps } from '../clone-common-props';
-import { clone } from '../clone';
+import { DeepPartial } from '../deep-partial';
+import { cloneCommonProps } from './clone-common-props';
+import { clone } from './clone';
 
 export function tweening<T>(target: T, end: DeepPartial<T>, easing: Easing): Tweening<T> {
   const start = cloneCommonProps(target, end);

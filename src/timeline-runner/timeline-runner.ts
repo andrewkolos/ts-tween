@@ -1,8 +1,8 @@
-import { Timeline, TimelineEvents } from '../timeline';
+import { Timeline, TimelineEvents } from '../timeline/timeline';
 import { BrowserTimelineRunnerStrategy } from './strategy/browser-timeline-runner-strategy'
 import { TimelineRunnerStrategy } from './strategy/timeline-runner-strategy'
 import { Handler } from '@akolos/event-emitter';
-import { LazyStopwatch } from '../lazy-stopwatch';
+import { LazyStopwatch } from '../misc/lazy-stopwatch';
 
 export class TimelineRunner {
 
@@ -18,12 +18,12 @@ export class TimelineRunner {
     this.strategy = newStrategy;
   }
 
-  public static registerTimeline(timeline: Timeline) {
+  public static _registerTimeline(timeline: Timeline) {
 
-    const doneHandler = () => this.unregisterTimeline(timeline);
+    const doneHandler = () => this._unregisterTimeline(timeline);
     const soughtHandler = () => {
       if (timeline.localTime >= timeline.length) {
-        this.unregisterTimeline(timeline);
+        this._unregisterTimeline(timeline);
       }
     }
 
@@ -36,7 +36,7 @@ export class TimelineRunner {
     this.timelines.set(timeline, registration);
   }
 
-  public static unregisterTimeline(timeline: Timeline) {
+  public static _unregisterTimeline(timeline: Timeline) {
     this.timelines.delete(timeline);
   }
 }

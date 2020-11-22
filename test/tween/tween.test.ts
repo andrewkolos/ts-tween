@@ -1,6 +1,6 @@
 import { Tween } from '../../src/tween/tween';
 import { Easings } from '../../src/easing/easings';
-import { clone } from '../../src/clone';
+import { clone } from '../../src/tween/clone';
 import { makeTweenFactory } from '../../src/tween/tween-factory';
 import { completeTimeline } from '../util';
 

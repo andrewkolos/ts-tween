@@ -1,6 +1,6 @@
 import { EventSource, InheritableEventEmitter } from '@akolos/event-emitter';
 import { Timeline, TimelineEvents } from './timeline';
-import { TimelineRunner } from './timeline-runner/timeline-runner';
+import { TimelineRunner } from '../timeline-runner/timeline-runner';
 
 export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineEvents<AbstractTimeline>> implements Timeline, EventSource<TimelineEvents<AbstractTimeline>> {
 
@@ -26,12 +26,12 @@ export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineE
     this._localTime = 0;
     this._stopped = false;
 
-    TimelineRunner.registerTimeline(this);
+    TimelineRunner._registerTimeline(this);
   }
 
   public stop() {
     this._stopped = true;
-    TimelineRunner.unregisterTimeline(this);
+    TimelineRunner._unregisterTimeline(this);
     this._stop();
   }
 
@@ -40,7 +40,7 @@ export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineE
     this.__update(time - from);
     this._seek(from, time);
     if (time < this.length) {
-      TimelineRunner.registerTimeline(this);
+      TimelineRunner._registerTimeline(this);
     }
   }
 
@@ -54,7 +54,7 @@ export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineE
     this._update(dt);
     if (this.localTime >= this.length) {
       this._completed();
-      TimelineRunner.unregisterTimeline(this);
+      TimelineRunner._unregisterTimeline(this);
     }
   }
 

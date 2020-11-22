@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { DeepPartial } from './deep-partial';
+import { DeepPartial } from '../deep-partial';
 
 export function cloneCommonProps<L, R extends DeepPartial<L>>(cloneFrom: L, lookForPropsIn: R): R {
   switch (typeof lookForPropsIn) {

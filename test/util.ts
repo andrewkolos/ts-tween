@@ -1,5 +1,5 @@
 import { Easings } from '../src/easing';
-import { Timeline } from '../src/timeline';
+import { Timeline } from '../src/timeline/timeline';
 import { Tween } from '../src/tween/tween';
 
 export function lerp(start: number, end: number, progress: number) {

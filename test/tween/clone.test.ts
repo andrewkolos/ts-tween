@@ -1,5 +1,5 @@
-import { cloneCommonProps } from '../../src/clone-common-props';
-import { clone } from '../../src/clone';
+import { cloneCommonProps } from '../../src/tween/clone-common-props';
+import { clone } from '../../src/tween/clone';
 
 describe(nameof(clone), () => {
 

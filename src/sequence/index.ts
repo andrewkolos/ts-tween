@@ -1,4 +1,4 @@
-import { Timeline } from '../timeline';
+import { Timeline } from '../timeline/timeline';
 import { Sequence as SequenceClass, SequenceEvents as SequenceEventsInterface} from './sequence';
 
 export * from './sequence-builder';

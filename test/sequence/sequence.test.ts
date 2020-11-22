@@ -1,7 +1,7 @@
 import { Sequence } from '../../src/sequence/sequence';
 import { Sequenced } from '../../src/sequence';
 import { Tween } from '../../src/tween/tween';
-import { Timeline } from '../../src/timeline';
+import { Timeline } from '../../src/timeline/timeline';
 import { makeZeroToOneTween } from '../util';
 
 function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): Sequenced<T>[] {

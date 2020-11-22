@@ -1,4 +1,4 @@
-import { Timeline } from '../timeline';
+import { Timeline } from '../timeline/timeline';
 import { Sequenced } from './sequenced-timeline';
 import { Sequence } from './sequence';
 

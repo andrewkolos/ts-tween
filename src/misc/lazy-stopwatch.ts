@@ -1,5 +1,5 @@
 import { InheritableEventEmitter } from '@akolos/event-emitter';
-import { getNow } from './misc/getNow';
+import { getNow } from './getNow';
 
 export interface LazyStopwatchEvents {
   started: [source: LazyStopwatch];
