@@ -17,7 +17,7 @@ export abstract class AbstractTimeline extends InheritableEventEmitter<TimelineE
     return this._localTime;
   }
 
-  public stopped(): boolean {
+  public get stopped(): boolean {
     return this._stopped;
   }
 

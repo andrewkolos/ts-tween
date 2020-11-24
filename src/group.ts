@@ -23,7 +23,7 @@ export class Group<T extends Timeline> extends AbstractCompositeTimeline<T> impl
     }
   }
 
-  public _update(dt: number): void {
+  protected _update(dt: number): void {
     this.updateTimelines();
     this.emit('updated', { dt }, this);
   }

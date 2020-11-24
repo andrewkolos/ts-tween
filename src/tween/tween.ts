@@ -11,6 +11,7 @@ import { SequenceBuilder } from '../sequence';
 import { Group } from '../group';
 import { AbstractTimeline } from '../timeline/abstract-timeline';
 import { TimelineEvents } from '../timeline';
+import { makeTweenFactory, TweenFactory } from './tween-factory';
 
 export interface TweenEvents<T> extends TimelineEvents<Tween<T>> {
   completed: [event: {}, source: Tween<T>];
@@ -91,6 +92,14 @@ export namespace Tween {
    */
   export function tween<T>(target: T, propDests: DeepPartial<T>, opts: TweenOptions) {
     return new Tween(target, propDests, opts);
+  }
+
+  /**
+   * Makes a factory that can produce tweens that share an easing and length.
+   * @param opts The options that each tween will use.
+   */
+  export function factory(opts: TweenOptions): TweenFactory {
+    return makeTweenFactory(opts);
   }
 
   /**
