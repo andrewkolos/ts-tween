@@ -24,7 +24,7 @@ const target = {
 const xTween = tween(point, target, {easing: Easings.linear, length: 1000});
 
 // Also available as a static method on `Tween`
-const yTween = Tween.tween(point, {y: 10}, {easing: Easings.linear, length: 1000});
+const yTween = Tween.start(point, {y: 10}, {easing: Easings.linear, length: 1000});
 ```
 
 The step-builder methods.

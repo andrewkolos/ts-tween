@@ -1,9 +1,9 @@
 import { Timeline } from '../timeline/timeline';
 import { BrowserTimelineRunnerStrategy } from './strategy/browser-timeline-runner-strategy'
 import { TimelineRunnerStrategy } from './strategy/timeline-runner-strategy'
-import { Handler } from '@akolos/event-emitter';
 import { LazyStopwatch } from '../misc/lazy-stopwatch';
-import { TimelineEvents } from "../timeline/timeline-events";
+import { TimelineEvents } from '../timeline/timeline-events';
+import { Handler } from '@akolos/event-emitter';
 
 export class TimelineRunner {
 

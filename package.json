@@ -1,6 +1,6 @@
 {
   "name": "@akolos/ts-tween",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "main": "build/cjs/index.js",
   "module": "build/index.js",
   "types": "build/index.d.ts",
@@ -14,13 +14,18 @@
     "test:debug": "node --inspect-brk=0.0.0.0 node_modules/jest/bin/jest.js --runInBand --config jest.config.js",
     "publish": "npm run clean && npm run build && npm publish --access=public"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "TypeScript",
+    "tween",
+    "animation"
+  ],
+  "author": "Andrew Kolos <andrewrkolos@gmail.com>",
   "license": "ISC",
+  "homepage": "https://github.com/andrewkolos/ts-tween",
   "dependencies": {
     "@akolos/clone-dumb-object": "0.0.1",
     "@akolos/custom-error": "0.0.1",
-    "@akolos/event-emitter": "^2.0.0",
+    "@akolos/event-emitter": "^2.0.3",
     "@types/dedent": "^0.7.0",
     "@types/read": "0.0.28",
     "dedent": "^0.7.0",
@@ -41,9 +46,5 @@
     "tslint-clean-code": "^0.2.10",
     "typescript": "^4.1.2"
   },
-  "description": "",
-  "engines": {
-    "node": "8.9.3",
-    "npm": "5.6.0"
-  }
+  "description": "A simple tweening/animation library for TypeScript/JavaScript."
 }

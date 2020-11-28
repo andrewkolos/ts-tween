@@ -35,7 +35,7 @@ export class TweenStepBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, Tw
     if (this.target == null || this.destination == null) {
       throw Error('Missing information required to create Tween.');
     }
-    return new Tween(this.target, this.destination, options);
+    return Tween.start(this.target, this.destination, options);
   }
 
 }

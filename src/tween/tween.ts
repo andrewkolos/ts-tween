@@ -35,13 +35,7 @@ export class Tween<T> extends AbstractTimeline implements Timeline {
   private readonly tweening: Tweening<T>;
   private _target: T;
 
-  /**
-   * Creates a tween.
-   * @param target The value to be interpolated. Will be written to whenever this tween is updated.
-   * @param tweenTo The value to tween towards.
-   * @param opts Describes how the target will be tweened.
-   */
-  public constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
+  private constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
     super(opts.length);
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     this._target = target;
@@ -76,12 +70,6 @@ export class Tween<T> extends AbstractTimeline implements Timeline {
     this.emit('sought', { from }, this);
   }
 
-}
-
-// Need to use namespace instead of static methods on class as we do not expose
-// the class to the outside world, only its type.
-export namespace Tween {
-
   /**
    * Creates a tween.
    * @param target The value/object to tween.
@@ -90,9 +78,14 @@ export namespace Tween {
    * @param opts The options for this tween, including the easing function to use and the
    *  length of the tween.
    */
-  export function tween<T>(target: T, propDests: DeepPartial<T>, opts: TweenOptions) {
-    return new Tween(target, propDests, opts);
+  public static start<T>(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
+    return new Tween(target, tweenTo, opts);
   }
+}
+
+// Need to use namespace instead of static methods on class as we do not expose
+// the class to the outside world, only its type.
+export namespace Tween {
 
   /**
    * Makes a factory that can produce tweens that share an easing and length.
