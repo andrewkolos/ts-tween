@@ -1,12 +1,15 @@
-import { Tween } from '../../src/tween/tween';
 import { Easings } from '../../src/easing/easings';
+import { ManualTimelineRunnerStrategy, TimelineRunner } from '../../src/timeline-runner';
 import { clone } from '../../src/tween/clone';
+import { Tween } from '../../src/tween/tween';
 import { makeTweenFactory } from '../../src/tween/tween-factory';
 import { completeTimeline } from '../util';
 
+beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
+
 const linearOpts = { length: 1000, easing: Easings.linear };
 
-describe(nameof(Tween), () => {
+describe('Tween', () => {
   it('correctly tweens numbers', (done) => {
     const start = 0;
     const end = 10;
@@ -111,17 +114,6 @@ describe(nameof(Tween), () => {
       });
 
     completeTimeline(tween);
-  });
-
-  it('throws an error when the object to tween to contains a property missing in the target object', () => {
-    expect(() => Tween.get({
-      a: 1,
-      b: 2,
-    }).to({
-      a: 3,
-      d: 4,
-    } as any)
-      .with(linearOpts)).toThrow();
   });
 
   it('updates properly when asked to seek to a specific time', () => {

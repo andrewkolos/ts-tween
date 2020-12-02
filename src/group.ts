@@ -42,6 +42,6 @@ export class Group<T extends Timeline> extends AbstractCompositeTimeline<T> impl
   }
 
   private updateTimelines() {
-    this.timelines.forEach(t => t.seek(this.localTime));
+    this.timelines.forEach(t => t.__update(this.localTime));
   }
 }

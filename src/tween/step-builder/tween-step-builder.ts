@@ -3,6 +3,7 @@ import { TweenOptions } from '../opts';
 import { TweenFromStep } from './tween-from-step';
 import { TweenToStep } from './tween-to-step';
 import { TweenWithStep } from './tween-with-step';
+import { DeepPartial } from '../../deep-partial';
 
 /**
  * Builds instances of Tween using an ordered process of steps, as an alternative to the constructor syntax.
@@ -10,7 +11,7 @@ import { TweenWithStep } from './tween-with-step';
  */
 export class TweenStepBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, TweenWithStep<T> {
   private target?: T;
-  private destination?: Partial<T>;
+  private destination?: DeepPartial<T>;
 
   public get(target: T): TweenToStep<T> {
     this.target = target;
@@ -21,7 +22,7 @@ export class TweenStepBuilder<T> implements TweenFromStep<T>, TweenToStep<T>, Tw
    * @param destination The value to interpolate towards.
    * @returns The next step in the building process, where the configuration of the Tween is provided.
    */
-  public to(destination: Partial<T>): TweenWithStep<T> {
+  public to(destination: DeepPartial<T>): TweenWithStep<T> {
     this.destination = destination;
     return this;
   }

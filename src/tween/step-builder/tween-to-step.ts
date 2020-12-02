@@ -1,3 +1,4 @@
+import { DeepPartial } from '../../deep-partial';
 import { TweenWithStep } from './tween-with-step';
 
 /**
@@ -5,5 +6,5 @@ import { TweenWithStep } from './tween-with-step';
  * @returns The next step in the building process, where the configuration of the Tween is provided.
  */
 export interface TweenToStep<T> {
-  to: (destination: Partial<T>) => TweenWithStep<T>;
+  to: (destination: DeepPartial<T>) => TweenWithStep<T>;
 }

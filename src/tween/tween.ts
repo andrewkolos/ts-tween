@@ -17,7 +17,6 @@ export interface TweenEvents<T> extends TimelineEvents<Tween<T>> {
   completed: [event: {}, source: Tween<T>];
   sought: [event: { from: number }, source: Tween<T>];
   updated: [event: { dt: number, value: T }, source: Tween<T>];
-
 }
 
 /**
@@ -32,14 +31,15 @@ export class Tween<T> extends AbstractTimeline implements Timeline {
   protected readonly emit = this.eventEmitter.makeDelegate('emit', this);
 
   public readonly tweenTo: DeepReadonly<DeepPartial<T>>;
-  private readonly tweening: Tweening<T>;
+  private tweening?: Tweening<T>;
   private _target: T;
+  private readonly opts: TweenOptions;
 
   private constructor(target: T, tweenTo: DeepPartial<T>, opts: TweenOptions) {
     super(opts.length);
     this.tweenTo = tweenTo as DeepReadonly<DeepPartial<T>>;
     this._target = target;
-    this.tweening = tweening(target, tweenTo, opts.easing);
+    this.opts = opts;
   }
 
   /**
@@ -49,7 +49,14 @@ export class Tween<T> extends AbstractTimeline implements Timeline {
     return this._target;
   }
 
+  private captureTweening() {
+    this.tweening = tweening(this.target, this.tweenTo, this.opts.easing);
+  }
+
   protected _update(dt: number) {
+    if (!this.tweening) {
+      throw Error('This tween has no tweening function. This is likely an internal bug.');
+    }
     this._target = this.tweening(Math.min(this.localTime / this.length, 1.0));
     this.emit('updated', { dt, value: this._target }, this);
   }
@@ -59,6 +66,7 @@ export class Tween<T> extends AbstractTimeline implements Timeline {
   }
 
   protected _start(): void {
+    this.captureTweening();
     this.emit('started', {}, this);
   }
 

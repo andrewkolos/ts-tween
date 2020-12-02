@@ -1,8 +1,10 @@
-import { Group } from '../src/group';
+import { ManualTimelineRunnerStrategy, TimelineRunner } from '../src/timeline-runner';
 import { Tween } from '../src/tween/tween';
 import { completeTimeline, lerp, makeZeroToOneTween, progressOf } from './util';
 
-describe(nameof(Group), () => {
+beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
+
+describe('Group', () => {
   it('Updates all items correctly when running start to finish.', (done) => {
     const items = new Array(3).map(() => makeZeroToOneTween());
     const comp = Tween.group(items);

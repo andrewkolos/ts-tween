@@ -1,8 +1,7 @@
 import { Easings } from '../../src/easing';
 import { Tween } from '../../src/tween/tween';
-import { TweenBuilder } from '../../src/tween/tween-builder';
 
-describe(nameof(TweenBuilder), () => {
+describe('TweenBuilder', () => {
   describe('throws an error when required options are not given', () => {
     it('length is missing', () => {
       expect(() => Tween.builder().easing(Easings.linear).tween<number>(1, 2)).toThrow();

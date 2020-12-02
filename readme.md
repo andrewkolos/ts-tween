@@ -35,7 +35,7 @@ const myTween = Tween.get(point).to(target).with({easing: Easings.linear, length
 
 Creating a factory (useful when many of your tweens will have the same easing/length).
 ```ts
-const pointTweenFactory = Tween.factory({ easing: Easings.easeOutCubic, length: 1000 });
+const pointTweenFactory = Tween.factory({ easing: Easings.outCubic, length: 1000 });
 
 const xTween = pointTweenFactory(point, { x: 10 });
 const yTween = pointTweenFactory(point, { y: 5 });

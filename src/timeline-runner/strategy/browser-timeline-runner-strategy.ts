@@ -9,10 +9,12 @@ export class BrowserTimelineRunnerStrategy implements TimelineRunnerStrategy {
     this.stopped = false;
     this.timelineUpdater = timelineUpdater;
     requestAnimationFrame(() => this.updateTweens());
+    return this;
   }
 
   public stop() {
     this.stopped = true;
+    return this;
   }
 
   private updateTweens() {

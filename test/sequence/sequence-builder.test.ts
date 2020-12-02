@@ -3,26 +3,34 @@ import { Sequenced } from '../../src/sequence';
 import { Tween } from '../../src/tween/tween';
 import { TweenOptions } from '../../src/tween/opts';
 import { Easings } from '../../src/easing';
+import { ManualTimelineRunnerStrategy, TimelineRunner } from '../../src/timeline-runner';
+
+beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
 
 const linearOpts: TweenOptions = {
   easing: Easings.linear,
   length: 1000,
 }
 
-describe(nameof(SequenceBuilder), () => {
+describe('SequenceBuilder', () => {
   it('correctly builds a sequence of timelines made with 0-offset appends', () => {
-    const one = Tween.get(0).to(1).with(linearOpts)
-    const two = Tween.get(2).to(3).with(linearOpts)
+    const one = Tween.get(0).to(1).with(linearOpts);
+    const two = Tween.get(2).to(3).with(linearOpts);
+    const three = Tween.get(3).to(4).with(linearOpts);
     const sequence = new SequenceBuilder<Tween<number>>()
-      .append(one).append(two).start();
+      .append(one).append(two).append(three).start();
     expect(sequence.getItems()).toEqual<Sequenced<Tween<number>>[]>([
       {
         startTime: 0,
-        timeline: one
+        timeline: one,
       },
       {
         startTime: 1000,
-        timeline: two
+        timeline: two,
+      },
+      {
+        startTime: 2000,
+        timeline: three,
       }
     ]);
   });

@@ -7,10 +7,12 @@ export class ManualTimelineRunnerStrategy implements TimelineRunnerStrategy {
 
   public start(updateTimelines: TimelineUpdater) {
     this.timelineUpdater = updateTimelines;
+    return this;
   }
 
   public stop() {
     this.stopped = true;
+    return this;
   }
 
   public update() {

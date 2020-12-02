@@ -3,6 +3,10 @@ import { Sequenced } from '../../src/sequence';
 import { Tween } from '../../src/tween/tween';
 import { Timeline } from '../../src/timeline/timeline';
 import { makeZeroToOneTween } from '../util';
+import { Easings } from '../../src/easing';
+import { ManualTimelineRunnerStrategy, TimelineRunner } from '../../src/timeline-runner';
+
+beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
 
 function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): Sequenced<T>[] {
   if (times.length !== timelines.length) {
@@ -12,7 +16,7 @@ function assignStartTimes<T extends Timeline>(times: number[], timelines: T[]): 
   return times.map((value, index) => ({ startTime: value, timeline: timelines[index] }));
 }
 
-describe(nameof(Sequence), () => {
+describe('Sequence', () => {
   it('correctly plays out a single item', (done) => {
     const tweenZeroToOne = makeZeroToOneTween();
     const seq = new Sequence(assignStartTimes([0], [tweenZeroToOne]))
@@ -269,6 +273,39 @@ describe(nameof(Sequence), () => {
     function addDeactiveListenerFor(tween: Tween<number>) {
       return addActiveToggleListenerFor(tween, 'timelineDeactivated');
     }
+  });
+
+  it('works with multiple tweens targeting the same object', (done) => {
+    const factory = Tween.factory({ easing: Easings.linear, length: 500 });
+    const coord = {
+      x: 0,
+    };
+
+    const moveXto5 = factory(coord, { x: 5 });
+    const moveXBackTo3 = factory(coord, { x: 3 });
+    const moveXTo10 = factory(coord, { x: 10 });
+
+    const seq = Tween.sequence()
+      .append(moveXto5)
+      .append(moveXBackTo3)
+      .append(moveXTo10)
+      .start()
+      .on('updated', () => {
+        const t = seq.localTime;
+        const x = coord.x;
+        if (t <= 500) {
+          expect(x).toBeCloseTo(lerp(0, 5, progressOf(moveXto5)));
+        } else if (t <= 1000) {
+          expect(x).toBeCloseTo(lerp(5, 3, progressOf(moveXBackTo3)))
+        } else {
+          expect(x).toBeCloseTo(lerp(3, 10, progressOf(moveXTo10)));
+        }
+      })
+      .on('completed', () => done());
+
+    completeSequence(seq);
+
+
   });
 });
 

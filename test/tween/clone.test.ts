@@ -1,7 +1,7 @@
 import { cloneCommonProps } from '../../src/tween/clone-common-props';
 import { clone } from '../../src/tween/clone';
 
-describe(nameof(clone), () => {
+describe('clone', () => {
 
   it('can clone immutable values', () => {
     const target1 = 1;
@@ -43,7 +43,7 @@ describe(nameof(clone), () => {
   });
 });
 
-describe(nameof(cloneCommonProps), () => {
+describe('cloneCommonProps', () => {
 
     it('works for immutable values of the same type', () => {
       expect(cloneCommonProps('left', 'right')).toEqual('left');

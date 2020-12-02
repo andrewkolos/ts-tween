@@ -1,6 +1,6 @@
 {
   "name": "@akolos/ts-tween",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "main": "build/cjs/index.js",
   "module": "build/index.js",
   "types": "build/index.d.ts",
@@ -29,13 +29,11 @@
     "@types/dedent": "^0.7.0",
     "@types/read": "0.0.28",
     "dedent": "^0.7.0",
-    "lodash": "^4.17.19",
     "ts-nameof": "^5.0.0",
     "tweenjs": "^1.0.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
-    "@types/lodash": "^4.14.159",
     "@types/node": "^14.0.20",
     "@types/ts-nameof": "^4.2.1",
     "jest": "^26.6.3",

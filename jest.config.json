@@ -6,9 +6,6 @@
     "./test"
   ],
   "globals": {
-    "ts-jest": {
-      "astTransformers": ["ts-nameof"]
-    }
   },
   "transform": {
     "^.+\\.ts?$": "ts-jest"

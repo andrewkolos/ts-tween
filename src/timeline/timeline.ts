@@ -26,6 +26,6 @@ export interface Timeline extends ReadonlyTimeline {
   /**
    * @internal
    */
-  __update(dt: number): void;
+  __update(nextLocalTime: number): void;
 
 }

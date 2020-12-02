@@ -74,14 +74,14 @@ export class Sequence<T extends Timeline> extends AbstractCompositeTimeline<T> i
       const { startTime, timeline } = si;
       if (itemIsInFutureButIsAlsoInProgress(si, this)) {
         removeFromActive(timeline, this);
-        timeline.seek(0);
+        timeline.__update(0);
       }
       if (itemIsInPastButIsNotCompleted(si, this)) {
         removeFromActive(timeline, this);
-        timeline.seek(timeline.length);
+        timeline.__update(timeline.length);
       } else if (startTime <= this.localTime && this.localTime <= startTime + timeline.length) {
         addToActive(timeline, this);
-        timeline.seek(this.localTime - startTime);
+        timeline.__update(this.localTime - startTime);
         if (timeline.localTime >= timeline.length) {
           removeFromActive(timeline, this);
         }
