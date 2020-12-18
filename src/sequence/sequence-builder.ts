@@ -26,6 +26,10 @@ export class SequenceBuilder<T extends Timeline> {
     return this;
   }
 
+  /**
+   * Builds the sequence and starts it.
+   * @returns The sequence.
+   */
   public start(): Sequence<T> {
     return new Sequence(this.items as Sequenced<T>[]);
   }

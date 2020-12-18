@@ -52,4 +52,3 @@ describe('Group', () => {
     expect(completedListener).toHaveBeenCalledTimes(1);
   });
 });
-
