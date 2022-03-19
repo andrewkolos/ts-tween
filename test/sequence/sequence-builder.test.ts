@@ -1,9 +1,9 @@
 import { SequenceBuilder } from '../../src/sequence/sequence-builder';
-import { Sequenced } from '../../src/sequence';
 import { Tween } from '../../src/tween/tween';
 import { TweenOptions } from '../../src/tween/opts';
 import { Easings } from '../../src/easing';
 import { ManualTimelineRunnerStrategy, TimelineRunner } from '../../src/timeline-runner';
+import { Sequenced } from '../../src/sequence/sequenced-timeline';
 
 beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
 

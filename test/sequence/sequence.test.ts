@@ -1,10 +1,10 @@
 import { Sequence } from '../../src/sequence/sequence';
-import { Sequenced } from '../../src/sequence';
 import { Tween } from '../../src/tween/tween';
 import { Timeline } from '../../src/timeline/timeline';
 import { makeZeroToOneTween } from '../util';
 import { Easings } from '../../src/easing';
 import { ManualTimelineRunnerStrategy, TimelineRunner } from '../../src/timeline-runner';
+import { Sequenced } from '../../src/sequence/sequenced-timeline';
 
 beforeAll(() => TimelineRunner.changeStrategy(new ManualTimelineRunnerStrategy()));
 
