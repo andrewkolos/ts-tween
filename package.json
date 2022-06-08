@@ -1,6 +1,6 @@
 {
     "name": "@akolos/ts-tween",
-    "version": "1.0.8",
+    "version": "1.0.10",
     "main": "build/cjs/index.js",
     "module": "build/index.js",
     "types": "build/index.d.ts",
@@ -23,26 +23,26 @@
     "license": "ISC",
     "homepage": "https://github.com/andrewkolos/ts-tween",
     "dependencies": {
-        "@akolos/clone-dumb-object": "0.0.1",
-        "@akolos/custom-error": "0.0.1",
-        "@akolos/event-emitter": "^2.0.3",
+        "@akolos/clone-dumb-object": "1.0.0",
+        "@akolos/custom-error": "1.0.0",
+        "@akolos/event-emitter": "^3.0.2",
         "@types/dedent": "^0.7.0",
-        "@types/read": "0.0.28",
+        "@types/read": "0.0.29",
         "dedent": "^0.7.0",
         "ts-nameof": "^5.0.0",
         "tweenjs": "^1.0.2"
     },
     "devDependencies": {
-        "@types/jest": "^26.0.15",
-        "@types/node": "^14.0.20",
+        "@types/jest": "^28.1.1",
+        "@types/node": "^17.0.41",
         "@types/ts-nameof": "^4.2.1",
-        "jest": "^26.6.3",
-        "ts-essentials": "^7.0.0",
-        "ts-jest": "^26.4.4",
+        "jest": "^28.1.1",
+        "ts-essentials": "^9.1.2",
+        "ts-jest": "^28.0.4",
         "ts-node-register": "^1.0.0",
         "tslint": "^6.1.2",
         "tslint-clean-code": "^0.2.10",
-        "typescript": "^4.1.2"
+        "typescript": "^4.7.3"
     },
     "description": "A simple tweening/animation library for TypeScript/JavaScript."
 }
