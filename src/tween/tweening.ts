@@ -45,7 +45,7 @@ function tweenObj<T extends object>(start: T, end: DeepPartial<T>, progress: num
 
     if (typeof fromValue === 'object') {
       if (typeof toValue !== 'object') throwTypeMismatchError(start, end);
-      tweenObj(fromValue as any, toValue, progress, easingFunction, writeTo[key]);
+      tweenObj(fromValue as any, toValue as any, progress, easingFunction, writeTo[key]);
     } else {
       writeTo[key] = tweenInternal(fromValue, toValue, progress, easingFunction, writeTo[key]);
     }

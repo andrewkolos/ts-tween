@@ -14,7 +14,7 @@ export function cloneCommonProps<L, R extends DeepPartial<L>>(cloneFrom: L, look
       const result = (Array.isArray(lookForPropsIn) ? [] : {}) as R;
 
       Object.keys(lookForPropsIn).forEach((k: string) => {
-        if (!(k in cloneFrom))
+        if (!(k in (cloneFrom as object)))
           throw Error(`Property '${k}' is missing from the left object.`);
 
         const key = k as keyof L & keyof R;

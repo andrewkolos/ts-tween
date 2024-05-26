@@ -71,6 +71,15 @@ const sequence = Tween.sequence()
   .start();
 ```
 
+## Building
+
+Last tested with Node 8.
+
+```bash
+npm install
+npm run build
+```
+
 ## License - MIT
 
 Copyright 2020 Andrew Kolos
